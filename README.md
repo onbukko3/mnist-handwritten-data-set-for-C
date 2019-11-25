@@ -1,11 +1,11 @@
-## Hand-written number recognition
+# Hand-written number recognition
  - Implement the Artificial Neural Network, Machine-Learning with C
 
-# build
+## build
  $make
 
-# clean files
+## clean files
  $make clean
 
-# add object
+## add object
  OBJECTS = main.o {added object name} #in Makefile
