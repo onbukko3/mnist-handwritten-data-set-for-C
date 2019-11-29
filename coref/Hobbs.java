@@ -7,6 +7,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.ArrayList;
 import gate.Annotation;
 import java.util.stream.Collectors;
+import java.io.FileReader;
+import java.io.BufferedReader;
 
 /**
  * @author Robin Lamberti
@@ -17,6 +19,10 @@ public class Hobbs {
 	// assumption: 
 	// forest contains pronoun's tree and a certain number of previous trees
 	private List<Node> forest;
+
+	// Labels for nominal heads
+	private List<String> nominal_labels = {"NN", "NNS", "NNP", "NNPS", "PRP"};
+
 	private Node X;
 	private List<Node> p;
 //	private int lookBack;
@@ -118,6 +124,7 @@ public class Hobbs {
 		while (!queue.isEmpty()) {
 			Node n = queue.poll();
 			// return first NP
+			//
 			if(getType(n).equals("NP")) {
 				return n;
 			}
@@ -145,7 +152,8 @@ public class Hobbs {
 		queue.add(start);
 		while (!queue.isEmpty()) {
 			Node n = queue.poll();
-			if(getType(n).equals("NP")|| getType(n).equals("S") || getType(n).equals("SBARQ")) {
+			//
+			if((getType(n).equals("NP")|| getType(n).equals("S") || getType(n).equals("SBARQ")) && match(m)) {
 				potNP.add(n);
 			}
 			// only add children left of path
@@ -165,8 +173,83 @@ public class Hobbs {
 	
 	}
 
+	// functions for matching(gender and number)
+	private boolean match(Node m) {
+		if(number_match(m) && gender_match(m)) return true;
 
+		else return false;
+	}
+
+
+	private boolean number_match(Node n) {
+		Hashmap<String, String> map = new Hashmap();
+         map.put("NN","singular");
+         map.put("NNP","singular");
+         map.put("he","singular");
+         map.put("she","singular");
+         map.put("him","singular");
+         map.put("her","singular");
+         map.put("it","singular");
+         map.put("himself","singular");
+         map.put("herself","singular");
+         map.put("itself","singular");
+         map.put("NNS","plural");
+         map.put("NNPS","plural");
+         map.put("they","plural");
+         map.put("them","plural");
+         map.put("themselves","plural");
+		 map.put("PRP",null);
+		 
+		 String value = map.get(getType(n));
+		 if(getTypte(n).equals(nominal_labels)){
+			 if(map.get(getString(n)) == value) return true;
+		 };
+				
+		
+	}
+
+	public static List<String> fileLineRead(String name) throws IOException
+	{
+	 List<String> retStr = new ArrayList<String>();
+	 BufferedReader in = new BufferedReader(new FileReader(name));
+	 String s;
+	 while ((s = in.readLine()) != null) {
+	  retStr.add(s);
+	 }
+	 in.close();
+	 return retStr;  
+	}
+
+	private boolean gender_match(Node g) {
+		List<String> male_names = fileLineRead("male.txt");
+		List<String> female_names = fileLineRead("female.txt");
+		List<String> male_pro = {"he", "him", "himself"};
+		List<String> female_pro = {"she", "her", "herself"};
+		List<String> neutral_pro = {"it", "itself"};
+
+		if(getTypte(n).equals(nominal_labels)){
+			// In case of male name
+			if(isLeaf().get(0).toLowerCase() == male_names){
+				if (getType(g) == female_pro) return false;
+				else if (getType(g) == neutral_pro) return false;
+			}
+
+			else if(isLeaf().get(0).toLowerCase() == female_names){
+				if (getType(g) == male_pro) return false;
+				else if (getType(g) == neutral_pro) return false;
+			}
+			
+		} return true;
+		
+		
+	}
 	private String getType(Node a) {
 		return a.getData().getFeatures().get("type").toString();
 	}
+
+	// To use the string to match gender and number
+	private String getString(Node a) {
+          return a.getData().getFeatures().get("string").toString();
+    }
+
 }
