@@ -125,7 +125,7 @@ public class Hobbs {
 			Node n = queue.poll();
 			// return first NP
 			//
-			if(getType(n).equals("NP")) {
+			if((getType(n).equals("NP")) && match(n)) {
 				return n;
 			}
 			// only add children left of path
@@ -202,7 +202,7 @@ public class Hobbs {
 		 
 		 String value = map.get(getType(n));
 		 if(getTypte(n).equals(nominal_labels)){
-			 if(map.get(getString(n)) == value) return true;
+			 if(map.get(getString(n)).equals(value)) return true;
 		 };
 				
 		
@@ -229,14 +229,15 @@ public class Hobbs {
 
 		if(getTypte(n).equals(nominal_labels)){
 			// In case of male name
-			if(isLeaf().get(0).toLowerCase() == male_names){
-				if (getType(g) == female_pro) return false;
-				else if (getType(g) == neutral_pro) return false;
+			for(string name : )
+			if(male_names.contains(isLeaf().get(0).toLowerCase())){
+				if (getType(g).equals(female_pro)) return false;
+				else if (getType(g).equals(neutral_pro)) return false;
 			}
-
-			else if(isLeaf().get(0).toLowerCase() == female_names){
-				if (getType(g) == male_pro) return false;
-				else if (getType(g) == neutral_pro) return false;
+			// In case of female name
+			else if(female_names.contains(isLeaf().get(0).toLowerCase())){
+				if (getType(g).equals(male_pro)) return false;
+				else if (getType(g).equals(neutral_pro)) return false;
 			}
 			
 		} return true;
