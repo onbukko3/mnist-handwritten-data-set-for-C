@@ -32,7 +32,6 @@ int nofFileLines (char *filename)
 void ArrayList (char *filename, int linesize)
 {
     FILE * pFile = NULL;
-    int nread;
     char **arrList;
     int i;
     int j;
@@ -46,15 +45,16 @@ void ArrayList (char *filename, int linesize)
     
     pFile = fopen(filename, "r");
     if(pFile!=NULL) {
-        while(fgetc(pFile)!= EOF) {
-            c = fgetc(pFile);    
+        while((c=fgetc(pFile))!= EOF) {
+              
             if(c!='\n'){
-            arrList[linesize][j] = c;
-            printf("%s",buf);
+            buf[j] = c;
             j++;}
             else if (c == '\n') {
-                buf[j] = '0';
+                char buf[BUFFER_SIZE] = {};
+                j = 0;
             };
+            printf("%s",buf);
                 
            
             }
