@@ -58,17 +58,17 @@ void ArrayList (char *filename, int linesize)
                 
            
             }fclose(pFile);
-            printf("%s",*arrList);
+//            printf("%s",*arrList);
             
             
         }
         
 
-//        for(n=0;n<linesize;n++){
-//            printf("%02d: %s\n",n, arrList[n]);
-//            free(arrList[n]);
-//        }
-//        free(*arrList);
+        for(n=0;n<linesize;n++){
+            printf("%02d: %s\n",n, arrList[n]);
+            free(arrList[n]);
+        }
+       free(*arrList);
     }
 
 
