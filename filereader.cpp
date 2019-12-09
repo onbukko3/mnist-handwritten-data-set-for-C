@@ -2,88 +2,82 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BUFFER_SIZE 10
+#define BUFFER_SIZE 20
+#define MAX 3000
 
 char buf[BUFFER_SIZE];
+int Token(char* arrList[], char *inp);
+//int nofFileLines (char *filename);
 
 
-int nofFileLines (char *filename)
+
+
+
+//int main(){
+//    char fn[]= "coref/male.txt";
+//    int noline;
+//    char maleList;
+    
+
+    
+//    noline =  nofFileLines(fn);
+    
+
+    //maleList = ArrayList(fn, noline);
+     
+//    printf("%s %d\n ", "The number of lines:", noline);
+//    while (fgets)
+   
+    
+
+//    return 0;
+
+//}
+
+int main ()
 {
     FILE * pFile = NULL;
     int nread;
-    int line = 0;
-    
-    pFile = fopen(filename, "r");
+    char ch;
+    int index;
+    char* arrList[MAX];
+    char* inp;
+    char* c;
+    inp = (char*)(malloc(sizeof(char)));
+
+    pFile = fopen("coref/male.txt", "r");
     if(pFile!=NULL) {
-        while(1) {
-            nread = fread(buf, sizeof(char), BUFFER_SIZE, pFile);
+        while(fgets(inp, MAX*MAX, pFile)) {
+            index = Token(arrList, inp);
+
+            //nread = fread(buf, sizeof(char), BUFFER_SIZE, pFile);
             //printf("%d",nread);
-            if(nread<=0) break;
-            for(int i=0; i<nread; i++) {
-                if( buf[i] == '\n' ) 
-                    line++;
-            }
-        }
-        fclose(pFile);
+            //if(nread<=0) break;
+            //for(int i=0; i<nread; i++) {
+            //    if( buf[i] == '\n' ) 
+            //        line++;
+ //           }
+        }fclose(pFile);
+        //printf("%d", Token(arrList, inp).line);
     }
-    return line;
+    return 0;
 }
 
-void ArrayList (char *filename, int linesize)
-{
-    FILE * pFile = NULL;
-    char **arrList;
-    int i;
-    int j;
-    //이차원 배열 동적할당을 할때는 이런식으로 할것.
-    arrList = (char**)(malloc(sizeof(char)*linesize));
-    for(i =0; i<linesize;i++){
-        arrList[i] = (char*)malloc(sizeof(char)*10);
-    }
-    int n = 0;
-    char c;
+int Token(char* arrList[], char *inp){
+    int i =0;
     
-    pFile = fopen(filename, "r");
-    if(pFile!=NULL) {
-        while((c=fgetc(pFile))!= EOF) {
-              
-            if(c!='\n'){
-            *arrList[i] = c;
-            }
-                  
-            else if (c == '\n') {
-                i++;
-            };
-            //printf("%s",buf);
-                
-           
-            }fclose(pFile);
-//            printf("%s",*arrList);
-            
-            
+    int line = 0;
+
+    char* c = strtok(inp, "\n");
+
+    while(c != NULL){
+
+        arrList[i] = c;
+        printf("%s\n", arrList[i]);
+        c= strtok(NULL, "\n");
+        i++;
+        line++;
         }
-        
-
-        for(n=0;n<linesize;n++){
-            printf("%02d: %s\n",n, arrList[n]);
-            free(arrList[n]);
-        }
-       free(*arrList);
-    }
-
-
-int main(){
-    char fn[]= "coref/male.txt";
-    int noline;
-    char maleList;
-
-    
-    noline =  nofFileLines(fn);
-    //maleList = ArrayList(fn, noline);
-     
-    printf("%s %d\n ", "The number of lines:", noline);
-    ArrayList(fn, noline);
-
-    return 0;
+        return i;
 
 }
