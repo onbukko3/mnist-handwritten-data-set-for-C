@@ -46,32 +46,36 @@ void ArrayList (char *filename, int linesize)
     
     pFile = fopen(filename, "r");
     if(pFile!=NULL) {
-        while(1) {
-            for(j= 0 ; j<sizeof(buf)/sizeof(char); j++){
-                c = fgetc(pFile);
-                if(c!='\n'){
-                buf[j] = c;
-                }
-                else if (c == '\n')
-                {
-                    break;
-                }}
-            
-            arrList[n] = buf;
-            n++;          
+        while(fgetc(pFile)!= EOF) {
+            c = fgetc(pFile);    
+            if(c!='\n'){
+            arrList[linesize][j] = c;
+            printf("%s",buf);
+            j++;}
+            else if (c == '\n') {
+                buf[j] = '0';
+            };
+                
+           
+            }
+                
+//            char * newstr = (char*)(malloc(sizeof(char)));
+//            strcpy(newstr, buf);
+//            arrList[n] = newstr;
+//            n++;          
                 
             
             
         }fclose(pFile);
         
 
-        for(n=0;n<linesize;n++){
-            printf("%02d: %s\n",n, arrList[n]);
-            free(arrList[n]);
-        }
-        free(*arrList);
+//        for(n=0;n<linesize;n++){
+//            printf("%02d: %s\n",n, arrList[n]);
+//            free(arrList[n]);
+//        }
+//        free(*arrList);
     }
-}
+
 
 int main(){
     char fn[]= "coref/male.txt";
@@ -84,7 +88,7 @@ int main(){
      
     printf("%s %d\n ", "The number of lines:", noline);
     ArrayList(fn, noline);
-    
+
     return 0;
 
 }
