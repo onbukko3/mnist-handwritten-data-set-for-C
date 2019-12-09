@@ -48,25 +48,20 @@ void ArrayList (char *filename, int linesize)
         while((c=fgetc(pFile))!= EOF) {
               
             if(c!='\n'){
-            buf[j] = c;
-            j++;}
+            *arrList[i] = c;
+            }
+                  
             else if (c == '\n') {
-                char buf[BUFFER_SIZE] = {};
-                j = 0;
+                i++;
             };
-            printf("%s",buf);
+            //printf("%s",buf);
                 
            
-            }
-                
-//            char * newstr = (char*)(malloc(sizeof(char)));
-//            strcpy(newstr, buf);
-//            arrList[n] = newstr;
-//            n++;          
-                
+            }fclose(pFile);
+            printf("%s",*arrList);
             
             
-        }fclose(pFile);
+        }
         
 
 //        for(n=0;n<linesize;n++){
