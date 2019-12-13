@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
+//#define MEMORY_CHECK
 //#define DYNAMIC
 
 typedef enum
@@ -75,6 +77,7 @@ int main(int argc, char *argv[])
 
     isValid = getFileContents(filename, pContent);
 
+    
     if(isValid)
     {
         int i;
@@ -89,6 +92,17 @@ int main(int argc, char *argv[])
     {
         printf("Could not get file contents in '%s'\n", filename);
     }
+
+#ifdef MEMORY_CHECK
+    while(1)
+    {
+        int input = 0;
+        scanf("%d", &input);
+        if(input == 77)
+            break;
+    }
+#endif
+
 #ifdef DYNAMIC
     {
         int i;
