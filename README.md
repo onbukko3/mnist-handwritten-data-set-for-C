@@ -12,3 +12,8 @@
 
 ## Diagram
  https://drive.google.com/drive/folders/1l0glLN2NOzfIU0XoJTe6JGRZfi9qcNMg?usp=sharing 
+
+## Build without Makefile
+ gcc {filename} -o {binary name}
+  - options
+    -g : add the debugging information
