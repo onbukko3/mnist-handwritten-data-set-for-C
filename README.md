@@ -17,3 +17,7 @@
  gcc {filename} -o {binary name}
   - options
     -g : add the debugging information
+
+## For memory test
+ _valgrind {binary name} {arguments}  - for memory leak check
+ pmap {PID}                           - while running process
