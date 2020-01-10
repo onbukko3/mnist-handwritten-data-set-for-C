@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
         }
         printf("end of file\n");
         printf("The file is successfully copied as \"malecp.txt\"!!! \n");
+        pContent = NULL; // for test
         copyToNewFile(fileLineCount, pContent);
     }
     else
