@@ -1,15 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "include/fr.h"
 
 //#define MEMORY_CHECK
 //#define DYNAMIC
 
-typedef enum
-{
-    FALSE,
-    TRUE
-} BOOL;
+
 
 #ifdef DYNAMIC
 
@@ -31,18 +28,19 @@ STRING staFileContent[MAX_FILE_LINE];
 
 BOOL getFileContents(char *filename, pSTRING pBuf);
 int getFilelineCount(char *filename);
+BOOL copyToNewFile(int oflc, pSTRING ofl);
 
 void ininMemory(void *p, size_t size);
-BOOL copyString(char *dst, const char *src);
-int getStringLength(const char *str);
 
-int main(int argc, char *argv[])
+
+int _process(int argc, char *argv[])
 {
     int retVal = 0;
     pSTRING pContent;
     char *filename;
     BOOL isValid = FALSE;
     int fileLineCount = 0;
+    BOOL isUsingLinkedlist = FALSE;
 
     if(argc < 2)
     {
@@ -52,45 +50,64 @@ int main(int argc, char *argv[])
     }
     else
     {
-        filename = argv[1];    
+        filename = argv[1];
+        if(argv[2][0] == 'l')
+        {
+            isUsingLinkedlist = TRUE;
+        }
     }
     
     fileLineCount = getFilelineCount(filename);
 
-#ifdef DYNAMIC
-    printf("Using dynamic memory.\n");
-    pDMfileContent = (pSTRING)malloc(sizeof(STRING) * fileLineCount);
+    if(isUsingLinkedlist)
     {
-        int i;
-        for(i = 0; i < fileLineCount; i++)
-        {
-            pDMfileContent[i].length = 0;
-            pDMfileContent[i].str = NULL;
-        }
-    }
-    pContent = pDMfileContent;
-#else
-    printf("Using static memory.\n");
-    ininMemory((void*)staFileContent, sizeof(staFileContent));
-    pContent = staFileContent;
-#endif
 
-    isValid = getFileContents(filename, pContent);
-
-    
-    if(isValid)
-    {
-        int i;
-        printf("read file contents\n");
-        for(i = 0; i < fileLineCount; i++)
-        {
-            printf("[%d]\t#%d\t%s",i, pContent[i].length, pContent[i].str);
-        }
-        printf("end of file\n");
     }
     else
-    {
-        printf("Could not get file contents in '%s'\n", filename);
+    {    
+#ifdef DYNAMIC
+        printf("Using dynamic memory.\n");
+        pDMfileContent = (pSTRING)malloc(sizeof(STRING) * fileLineCount);
+        {
+            int i;
+            for(i = 0; i < fileLineCount; i++)
+            {
+                pDMfileContent[i].length = 0;
+                pDMfileContent[i].str = NULL;
+            }
+        }
+        pContent = pDMfileContent;
+#else
+        printf("Using static memory.\n");
+        ininMemory((void*)staFileContent, sizeof(staFileContent));
+        pContent = staFileContent;
+#endif
+
+        isValid = getFileContents(filename, pContent);
+        
+        if(isValid)
+        {
+            int i;
+            printf("read file contents\n");
+            for(i = 0; i < fileLineCount; i++)
+            {
+                printf("[%d]\t#%d\t%s",i, pContent[i].length, pContent[i].str);
+            }
+            printf("end of file\n");
+
+            if(pContent!=NULL){
+
+                copyToNewFile(fileLineCount, pContent);
+                printf("The file is successfully copied!! \n");
+            }
+            else{
+                printf("You need to look at your original file again!\n");
+            }
+        }
+        else
+        {
+            printf("Could not get file contents in '%s'\n", filename);
+        }
     }
 
 #ifdef MEMORY_CHECK
@@ -226,4 +243,20 @@ int getStringLength(const char *str)
     }
 
     return length;
+}
+
+BOOL copyToNewFile(int oflc, pSTRING ofl)
+{
+    FILE *pf = fopen("malecp.txt","wt");
+    BOOL retVal = FALSE;
+    int i = 0;
+
+    for(i=0; i <oflc; i++)
+    {
+        fwrite(ofl[i].str,ofl[i].length,1,pf);
+
+    }
+    fclose(pf);
+
+    return retVal;
 }

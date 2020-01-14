@@ -1,5 +1,15 @@
-typedef struct __list{}linkedList;
-typedef struct __node{}node;
-void createNode(linkedList *L, int initData);
-void deleteLastNode(linkedList *L);
-void printNode(linkedList *L);
+#ifndef _FR_H_
+#define _FR_H_
+
+typedef enum
+{
+    FALSE,
+    TRUE
+} BOOL;
+
+int getStringLength(const char *str);
+BOOL copyString(char *dst, const char *src);
+
+int _process(int argc, char *argv[]);
+
+#endif

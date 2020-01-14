@@ -1,31 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-typedef struct __list{
-    struct __node *cur;
-    struct __node *head;
-    struct __node *tail;    
-} linkedList;
-
-typedef struct __node{
-    int data;
-    struct __node *next; // the address of the node
-} node;
+#include "include/linkedlist.h"
+#include "include/fr.h"
 
 
-
-void createNode(linkedList *L, int initData)
+void createNode(linkedList *L, char *initData)
 {
     node *New = (node*)malloc(sizeof(node));
-    New -> data = initData;
-    New -> next = NULL;
+    New->data = (char*)malloc(sizeof(char) * getStringLength(initData));
+    copyString(New->data, initData);
+    New->next = NULL;
 
-    if(L -> head == NULL && L -> tail == NULL)
+    if(L->head == NULL && L->tail == NULL)
         L->head = L->tail = New;
     else
     {
-        L -> tail -> next = New;
-        L -> tail = New;
+        L->tail->next = New;
+        L->tail = New;
     }
 
     L->cur = New;
@@ -33,20 +24,37 @@ void createNode(linkedList *L, int initData)
 
 void deleteLastNode(linkedList *L)
 {
-    node *p = L ->head;
-    while(p->next->next != NULL) p = p-> next;
-    p -> next = p -> next -> next;
-    L -> tail = p;
+    node *p = L->head;
+    node *temp;
+    while(p->next->next != NULL)
+    {
+        temp = p;
+        p = p->next;
+        free(temp->data);
+        free(temp);
+    }
+    p->next = p->next->next;
+    L->tail = p;
+}
+
+void deleteAllNode(linkedList *L)
+{
+	while (L->head != NULL)
+	{
+        deleteLastNode(L);
+	}
+
+	free(L);
 }
 
 void printNode(linkedList *L)
 {
-    node *p = L -> head;
+    node *p = L->head;
     putchar('[');
     while (p != NULL)
     {
-        printf("%d", p->data);
-        p = p ->next;
+        printf("%s", p->data);
+        p = p->next;
     }
     putchar(']');
     putchar('\n');
