@@ -8,9 +8,10 @@
             "name": "g++ build and debug active file",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/${fileBasenameNoExtension}",
-            //"args": ["coref/male.txt"],
-            "args": [],
+            //"program": "${fileDirname}/dynamic",
+            "program": "${workspaceRoot}/hwr",
+            "args": ["coref/male.txt", "l"],
+            //"args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
@@ -23,7 +24,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "g++ build active file",
+            //"preLaunchTask": "g++ build active file",
             "miDebuggerPath": "/bin/gdb"
         }
     ]

@@ -1,14 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "include/linkedlist.h"
-#include "include/fr.h"
+#include "include/util.h"
 
 
-void createNode(linkedList *L, char *initData)
+
+void createNode(linkedList *L, char *initData, int length)
 {
     node *New = (node*)malloc(sizeof(node));
-    New->data = (char*)malloc(sizeof(char) * getStringLength(initData));
-    copyString(New->data, initData);
+#ifdef DYNAMIC
+    New->data.str = (char*)malloc(sizeof(char) * getStringLength(initData));
+#endif
+    copyString(New->data.str, initData);
+    New->data.length = length;
     New->next = NULL;
 
     if(L->head == NULL && L->tail == NULL)
@@ -30,7 +34,9 @@ void deleteLastNode(linkedList *L)
     {
         temp = p;
         p = p->next;
-        free(temp->data);
+#ifdef DYNAMIC
+        free(temp->data.str);
+#endif
         free(temp);
     }
     p->next = p->next->next;
@@ -53,7 +59,7 @@ void printNode(linkedList *L)
     putchar('[');
     while (p != NULL)
     {
-        printf("%s", p->data);
+        printf("%s", p->data.str);
         p = p->next;
     }
     putchar(']');

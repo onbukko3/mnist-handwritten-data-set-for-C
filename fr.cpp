@@ -2,33 +2,24 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "include/fr.h"
-
-//#define MEMORY_CHECK
-//#define DYNAMIC
-
-
+#include "include/linkedlist.h"
+#include "include/util.h"
 
 #ifdef DYNAMIC
-
-typedef struct _STRING_
-{
-    char *str;
-    int length;
-}STRING, *pSTRING;
 STRING *pDMfileContent = NULL;
 #else
-#define MAX_FILE_LINE 10000
-typedef struct _STRING_
-{
-    char str[FILENAME_MAX];
-    int length;
-}STRING, *pSTRING;
 STRING staFileContent[MAX_FILE_LINE];
 #endif
 
-BOOL getFileContents(char *filename, pSTRING pBuf);
-int getFilelineCount(char *filename);
+//#define MEMORY_CHECK
+
+static linkedList *list;
+
+static BOOL getFileContents(char *filename, pSTRING pBuf);
+static BOOL getFileContentsWithLinkedlist(char *filename, linkedList *plist);
+static int getFilelineCount(char *filename);
 BOOL copyToNewFile(int oflc, pSTRING ofl);
+BOOL copyToNewFileWithLinkedlist(int oflc, linkedList *plist);
 
 void ininMemory(void *p, size_t size);
 
@@ -61,7 +52,28 @@ int _process(int argc, char *argv[])
 
     if(isUsingLinkedlist)
     {
+        list = (linkedList*)malloc(sizeof(linkedList));
+        isValid = getFileContentsWithLinkedlist(filename, list);
 
+        if(isValid)
+        {
+            printf("read file contents\n");
+            printNode(list);
+            printf("end of file\n");
+
+            if(list->head != NULL){
+
+                copyToNewFileWithLinkedlist(fileLineCount, list);
+                printf("The file is successfully copied!! \n");
+            }
+            else{
+                printf("You need to look at your original file again!\n");
+            }
+        }
+        else
+        {
+            printf("Could not get file contents in '%s'\n", filename);
+        }
     }
     else
     {    
@@ -201,6 +213,34 @@ BOOL getFileContents(char *filename, pSTRING pBuf)
     return retVal;
 }
 
+BOOL getFileContentsWithLinkedlist(char *filename, linkedList *plist)
+{
+    FILE *pf;
+    BOOL retVal = FALSE;
+    int length = 0;
+    char strBuf[FILENAME_MAX] = {0,};
+
+    pf = fopen(filename, "r");
+    if(pf != NULL)
+    {
+        while(1)
+        {
+            if(NULL == fgets(strBuf, FILENAME_MAX, pf))
+            {
+                printf("file read end.\n");
+                break;
+            }
+            
+            length = getStringLength(strBuf);
+            createNode(plist, strBuf, length);
+        }
+        retVal = TRUE;
+        fclose(pf);
+    }
+
+    return retVal;
+}
+
 void ininMemory(void *p, size_t size)
 {
     char *_p = (char*)p;
@@ -211,39 +251,7 @@ void ininMemory(void *p, size_t size)
     }
 }
 
-BOOL copyString(char *dst, const char *src)
-{
-    int srcLength = getStringLength(src);
-    int i = 0;
-    int dstLength = 0;
-    BOOL retVal = TRUE;
 
-    for(i = 0; i < srcLength; i++)
-    {
-        dst[i] = src[i];
-    }
-
-    dstLength = getStringLength(dst);
-    if(dstLength != srcLength)
-        retVal = FALSE;
-
-    return retVal;
-}
-
-int getStringLength(const char *str)
-{
-    int i = 0;
-    int length = 0;
-
-    while(str[i++] != '\0')
-    {
-        if(i > FILENAME_MAX)
-            break;
-        length++;
-    }
-
-    return length;
-}
 
 BOOL copyToNewFile(int oflc, pSTRING ofl)
 {
@@ -256,6 +264,29 @@ BOOL copyToNewFile(int oflc, pSTRING ofl)
         fwrite(ofl[i].str,ofl[i].length,1,pf);
 
     }
+    fclose(pf);
+
+    return retVal;
+}
+
+BOOL copyToNewFileWithLinkedlist(int oflc, linkedList *plist)
+{
+    FILE *pf = fopen("malecp.csv","wt");
+    BOOL retVal = FALSE;
+    int i = 0;
+
+    node *p = plist->head;
+
+    while (p != NULL)
+    {
+        fprintf(pf, "%s",p->data.str);
+        if(i < oflc)
+        {
+            fprintf(pf, ",");
+        }
+        p = p->next;
+    }
+
     fclose(pf);
 
     return retVal;
