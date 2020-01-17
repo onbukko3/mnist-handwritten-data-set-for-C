@@ -34,3 +34,34 @@ int getStringLength(const char *str)
 
     return length;
 }
+
+int getFilelineCount(char *filename)
+{
+    FILE *pf;
+    int count = 0;
+    pf = fopen(filename, "r");
+    if(pf != NULL)
+    {
+        BOOL isEnd = FALSE;
+        while(1)
+        {
+            switch (getc(pf))
+            {
+            case '\n':
+                count++;
+                break;
+            case EOF:
+                isEnd = TRUE;
+                break;
+            default:
+                break;
+            }
+
+            if(isEnd)
+                break;
+        }
+        fclose(pf);
+    }
+
+    return count;
+}

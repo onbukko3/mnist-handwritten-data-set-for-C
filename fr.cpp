@@ -17,7 +17,6 @@ static linkedList *list;
 
 static BOOL getFileContents(char *filename, pSTRING pBuf);
 static BOOL getFileContentsWithLinkedlist(char *filename, linkedList *plist);
-static int getFilelineCount(char *filename);
 BOOL copyToNewFile(int oflc, pSTRING ofl);
 BOOL copyToNewFileWithLinkedlist(int oflc, linkedList *plist);
 
@@ -157,37 +156,6 @@ int _process(int argc, char *argv[])
     return retVal;
 }
 
-int getFilelineCount(char *filename)
-{
-    FILE *pf;
-    int count = 0;
-    pf = fopen(filename, "r");
-    if(pf != NULL)
-    {
-        BOOL isEnd = FALSE;
-        while(1)
-        {
-            switch (getc(pf))
-            {
-            case '\n':
-                count++;
-                break;
-            case EOF:
-                isEnd = TRUE;
-                break;
-            default:
-                break;
-            }
-
-            if(isEnd)
-                break;
-        }
-        fclose(pf);
-    }
-
-    return count;
-}
-
 BOOL getFileContents(char *filename, pSTRING pBuf)
 {
     FILE *pf;
@@ -290,7 +258,7 @@ BOOL copyToNewFileWithLinkedlist(int oflc, linkedList *plist)
 {
     FILE *pf = fopen("malecp.csv","wt");
     BOOL retVal = FALSE;
-    int i = 0;
+    int i = 1;
 
     node *p = plist->head;
 

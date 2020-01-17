@@ -4,5 +4,6 @@
 
 int getStringLength(const char *str);
 BOOL copyString(char *dst, const char *src);
+int getFilelineCount(char *filename);
 
 #endif
