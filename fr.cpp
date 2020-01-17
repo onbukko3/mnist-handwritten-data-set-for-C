@@ -146,6 +146,12 @@ int _process(int argc, char *argv[])
         }
         free(pDMfileContent);
     }
+    else
+    {
+        deleteAllNode(list);
+        list = NULL;    
+    }
+    
 #endif
 
     return retVal;

@@ -45,9 +45,16 @@ void deleteLastNode(linkedList *L)
 
 void deleteAllNode(linkedList *L)
 {
-	while (L->head != NULL)
+	node *p = L->head;
+	node *temp;
+	while (p != NULL)
 	{
-        deleteLastNode(L);
+		temp = p;
+		p = p->next;
+#ifdef DYNAMIC
+        free(temp->data.str);
+#endif
+        free(temp);
 	}
 
 	free(L);
