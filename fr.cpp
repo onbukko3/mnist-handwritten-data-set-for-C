@@ -53,6 +53,10 @@ int _process(int argc, char *argv[])
     if(isUsingLinkedlist)
     {
         list = (linkedList*)malloc(sizeof(linkedList));
+        list->cur = NULL;
+        list->head = NULL;
+        list->tail = NULL;
+
         isValid = getFileContentsWithLinkedlist(filename, list);
 
         if(isValid)
@@ -133,6 +137,7 @@ int _process(int argc, char *argv[])
 #endif
 
 #ifdef DYNAMIC
+    if(isUsingLinkedlist == FALSE)
     {
         int i;
         for(i = 0; i < fileLineCount; i++)
@@ -232,6 +237,12 @@ BOOL getFileContentsWithLinkedlist(char *filename, linkedList *plist)
             }
             
             length = getStringLength(strBuf);
+            if(strBuf[length - 1] == '\n')
+            {
+                strBuf[length - 1] = 0;
+                length--;
+            }
+
             createNode(plist, strBuf, length);
         }
         retVal = TRUE;

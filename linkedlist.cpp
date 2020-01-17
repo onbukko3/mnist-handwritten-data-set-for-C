@@ -56,12 +56,12 @@ void deleteAllNode(linkedList *L)
 void printNode(linkedList *L)
 {
     node *p = L->head;
-    putchar('[');
+
     while (p != NULL)
     {
-        printf("%s", p->data.str);
+        printf("%s\n", p->data.str);
         p = p->next;
     }
-    putchar(']');
+
     putchar('\n');
 }

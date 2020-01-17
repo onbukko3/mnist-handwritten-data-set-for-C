@@ -1,16 +1,12 @@
 CC = gcc
 TARGET = hwr
-#THREAD = -lpthread -D _USE_THREAD
-OBJECTS = util.o fr.o linkedlist.o main.o 
+OBJS = main.o util.o fr.o linkedlist.o
 
-#$(TARGET) : $(OBJECTS)
-	#$(CC) -o $@ $^ $(THREAD) 
+$(TARGET) : $(OBJS)
+	$(CC) -o $@ $^ 
 
-$(TARGET) : $(OBJECTS)
-	$(CC) -o $@ $^
-
- : $(OBJECTS)
-	$(CC) -c -g -o $@ $<
+ : $(OBJS)
+	$(CC) -c $< -o $@
 
 clean : 
 	rm *.o hwr 
