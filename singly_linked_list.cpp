@@ -1,23 +1,17 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
-
-typedef struct __list{
-    struct __node *cur;
-    struct __node *head;
-    struct __node *tail;    
-} linkedList;
-
-typedef struct __node{
-    int data;
-    struct __node *next; // the address of the node
-} node;
+#include "fr_newtxt.h"
 
 
 
-void createNode(linkedList *L, int initData)
+void createNode(linkedList *L, char *initData)
 {
+    // char data = (data*)malloc(sizeof(char));
     node *New = (node*)malloc(sizeof(node));
-    New -> data = initData;
+    New -> data = (char*)malloc(sizeof(char)*strlen(initData));
+    strncpy(New->data, initData, strlen(initData)-1);
+    strcat(New->data, ", ");
     New -> next = NULL;
 
     if(L -> head == NULL && L -> tail == NULL)
@@ -45,7 +39,7 @@ void printNode(linkedList *L)
     putchar('[');
     while (p != NULL)
     {
-        printf("%d", p->data);
+        printf("%s", p->data);
         p = p ->next;
     }
     putchar(']');
