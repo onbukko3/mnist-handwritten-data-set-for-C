@@ -12,8 +12,6 @@
 #include "include/fr.h"
 #include "include/bmpinfo.h"
 
-void _bmpProcess(int argc, char* argv[]);
-
 int main(int argc, char* argv[])
 {
 	int ret = 0;
