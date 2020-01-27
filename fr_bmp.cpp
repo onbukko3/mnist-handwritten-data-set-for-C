@@ -15,6 +15,8 @@ int main()
     int height;
     int width;
     short bitperpixel;
+    char *paddingset;
+    int padding;
 
     
     if(pf!=NULL){
@@ -23,6 +25,11 @@ int main()
         fread(&bfh,sizeof(BITMAPFILEHEADER),1,pf);
         fread(&bih,sizeof(BITMAPINFOHEADER),1,pf);
 
+        padding = bfh.bfOffBits -sizeof(BITMAPFILEHEADER) - sizeof(BITMAPINFOHEADER);
+        paddingset = (char *)malloc(padding);
+        
+        fread(paddingset,padding,1,pf );
+        
         bitperpixel = bih.biBitCount;
 
         size = bih.biSizeImage;
@@ -45,7 +52,6 @@ int main()
 
     char *buf = (char*)malloc(size);
     int period = width -1;
-    int padding = bfh.bfOffBits -sizeof(BITMAPFILEHEADER) - sizeof(BITMAPINFOHEADER);
 
     if(pf_1!=NULL)
     {
@@ -53,6 +59,7 @@ int main()
         fwrite(&bfh, sizeof(BITMAPFILEHEADER), 1, pf_1);
 
         fwrite(&bih, sizeof(BITMAPINFOHEADER), 1, pf_1);
+        fwrite(paddingset, padding, 1, pf_1);
 
         j=0;
         for(idx=0; idx<size; idx++)
@@ -60,21 +67,30 @@ int main()
             // idx = 0;
             // for(j=0;j<height;j++)
             // {
-                if(idx == 3*((height)+j*(period)))
-                {
-                    if(image[idx] == -1)
-                    {
-                        buf[idx] = 0;
-                    }
-                }
+                // if(idx == 3*((height)+j*(period)))
+                // {
+                //     if(image[idx] == -1)
+                //     {
+                //         buf[idx] = 0;
+                //     }
+                // }
 // how can i manage the magic number 60 bytes for 20 pixels?
 
-                else if(idx == 3*((height+20)+j*(period)))
+                if(idx == 3*((height+1)+j*(period)))
                 {
                     if(image[idx] == -1)
                     {
                         buf[idx] = 0;
-                        j++;
+
+                        if(j == height-1)
+                        {
+                            j;
+                        }
+                        else
+                        {
+                            j++;
+                        }
+                        
                     }
                 }
                 
