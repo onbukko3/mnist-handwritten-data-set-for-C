@@ -76,7 +76,7 @@ int main()
                 // }
 // how can i manage the magic number 60 bytes for 20 pixels?
 
-                if(idx == 3*((height+1)+j*(period)))
+                if(idx == 3*((height)+j*(period))+1)
                 {
                     if(image[idx] == -1)
                     {
