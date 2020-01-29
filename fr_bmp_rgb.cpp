@@ -81,7 +81,7 @@ int main()
             else if(idx == idx_red)
             {
                 buf[idx] = 0;
-                if(j== height-20)
+                if(j== height)
                 {
                     j;
                 }
