@@ -6,7 +6,7 @@
 
 int main()
 {
-    FILE *pf = fopen("data/sample.bmp", "rb");
+    FILE *pf = fopen("data/RGB_24bits_palette_color.bmp", "rb");
     BITMAPFILEHEADER bfh;
     BITMAPINFOHEADER bih;
     
@@ -45,16 +45,15 @@ int main()
     }
     fclose(pf);
 
-    FILE *pf_1 = fopen("data/sample_result.bmp","wb");
+    FILE *pf_1 = fopen("data/RGB_24bits_palette_color_result.bmp","wb");
 
     int idx;
     int j;
-
+    int idx_blue;
+    int idx_green;
+    int idx_red;
     char *buf = (char*)malloc(size);
     int period = width -1;
-    int idx_blue;
-    int idx_green; 
-    int idx_red;
 
     if(pf_1!=NULL)
     {
@@ -82,7 +81,7 @@ int main()
             else if(idx == idx_red)
             {
                 buf[idx] = 0;
-                if(j== height-1)
+                if(j== height-20)
                 {
                     j;
                 }
@@ -99,9 +98,8 @@ int main()
             }
 
         }
-           
-
-        printf("%d",j);
+            printf("%d\n", height);
+            printf("%d",j);
         // }
         
         fwrite(buf,size,1,pf_1);
