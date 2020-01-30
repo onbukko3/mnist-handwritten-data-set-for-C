@@ -4,6 +4,7 @@
 
 #define errorReturn(FILE_POINTER) \
 do{ \
+printf("*error occured in %s:%d\n", __FILE__ , __LINE__); \
 fclose(FILE_POINTER); \
 return FALSE; \
 } while(0);
