@@ -69,10 +69,15 @@ BOOL writeBMPFile(char *path)
             errorReturn(fp);
         if(fwrite(&_bmpInfoHeader, 1, sizeof(BMPInfoHeader), fp) < 1)
             errorReturn(fp);
-        pb = (unsigned char*)malloc(_bmpInfoHeader.biSize - sizeof(BMPInfoHeader));
         
-        if(fwrite(pb, 1, _bmpInfoHeader.biSize - sizeof(BMPInfoHeader), fp) < 1)
-            errorReturn(fp);
+        if((_bmpInfoHeader.biSize - sizeof(BMPInfoHeader)) > 0)
+        {
+            pb = (unsigned char*)malloc(_bmpInfoHeader.biSize - sizeof(BMPInfoHeader));
+            
+            if(fwrite(pb, 1, _bmpInfoHeader.biSize - sizeof(BMPInfoHeader), fp) < 1)
+                errorReturn(fp);
+        }
+        
         if(fwrite(pImgBuf, 1, _bmpInfoHeader.biSizeImage, fp) < 1)
             errorReturn(fp);
         free(pb);
