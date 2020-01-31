@@ -32,7 +32,7 @@ BOOL openBMPFile(char *path)
         if(fread(&_bmpFileHeader, sizeof(BMPFileHeader), 1, fp) < 1)
             errorReturn(fp);
 
-        if(_bmpFileHeader.bfType != 0x4D42) // "BM"
+        if(_bmpFileHeader.bfType != ((DWORD)('M' << 8) | 'B')) // "BM"
             errorReturn(fp);
 
         if(fread(&_bmpInfoHeader, sizeof(BMPInfoHeader), 1, fp) < 1)
@@ -77,7 +77,7 @@ BOOL writeBMPFile(char *path)
             if(fwrite(pb, 1, _bmpInfoHeader.biSize - sizeof(BMPInfoHeader), fp) < 1)
                 errorReturn(fp);
         }
-        
+
         if(fwrite(pImgBuf, 1, _bmpInfoHeader.biSizeImage, fp) < 1)
             errorReturn(fp);
         free(pb);
