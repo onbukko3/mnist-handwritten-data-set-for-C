@@ -1,6 +1,7 @@
 
-#pragma pack(push,1)
+typedef unsigned char *pImage;
 
+#pragma pack(push,1)
 typedef struct _BITMAPFILEHEADER
 {
     unsigned short bfType;
@@ -9,7 +10,7 @@ typedef struct _BITMAPFILEHEADER
     unsigned short bfReserved2;
     unsigned int bfOffBits;
 
-}BITMAPFILEHEADER;
+}BITMAPFILEHEADER, *pBITMAPFILEHEADER;
 
 typedef struct _BITMAPINFOHEADER
 {
@@ -25,7 +26,7 @@ typedef struct _BITMAPINFOHEADER
     unsigned int biClrUsed; // color used
     unsigned int biClrImport; // the number of color indexes that are required for displaying
 
-} BITMAPINFOHEADER;
+} BITMAPINFOHEADER, *pBITMAPINFOHEADER;
 
 typedef struct _RGBTRIPLE
 {
@@ -33,6 +34,10 @@ typedef struct _RGBTRIPLE
     unsigned char rgbtGreen;
     unsigned char rgbtRed;
 
-} RGBTRIPLE;
+} RGBTRIPLE, *pRGBTRIPLE;
 
-#pragma pack(pop)
+// #pragma pack(pop)
+
+#define PIXEL_ALIGN  4
+
+#define getPixelSize(bitcount) (bitcount / 8)
