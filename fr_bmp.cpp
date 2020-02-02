@@ -3,111 +3,93 @@
 #include <unistd.h>
 #include "bmp.h"
 
+static unsigned char *pImagebuf;
+
+unsigned char *getbuff(void)
+{
+    return pImagebuf;
+}
 
 int main()
 {
     FILE *pf = fopen("data/sample.bmp", "rb");
-    BITMAPFILEHEADER bfh;
-    BITMAPINFOHEADER bih;
+    pBITMAPFILEHEADER bfh;
+    pBITMAPINFOHEADER bih;
+    BITMAPFILEHEADER _bfh;
+    BITMAPINFOHEADER _bih;
     
     char *image;
     int size;
     int height;
     int width;
     short bitperpixel;
-    char *paddingset;
-    int padding;
-
+    unsigned char *bif_plus_set;
+    int bif_plus;
+    int bitcount;
     
     if(pf!=NULL){
 
 
-        fread(&bfh,sizeof(BITMAPFILEHEADER),1,pf);
-        fread(&bih,sizeof(BITMAPINFOHEADER),1,pf);
+        fread(&_bfh,sizeof(BITMAPFILEHEADER),1,pf);
+        fread(&_bih,sizeof(BITMAPINFOHEADER),1,pf);
 
-        padding = bfh.bfOffBits -sizeof(BITMAPFILEHEADER) - sizeof(BITMAPINFOHEADER);
-        paddingset = (char *)malloc(padding);
-        
-        fread(paddingset,padding,1,pf );
-        
-        bitperpixel = bih.biBitCount;
+        width = _bih.biWidth;
+        height = _bih.biHeight;
+        bitcount = _bih.biBitCount;
 
-        size = bih.biSizeImage;
-        height = bih.biHeight;
-        width = bih.biWidth;
-
-        fseek(pf, bfh.bfOffBits,SEEK_SET);
-        
-        image = (char*)malloc(size);
-
-        fread(image, size, 1, pf);
+        bif_plus_set = (unsigned char*)malloc(_bih.biSize-sizeof(BITMAPINFOHEADER));
+        fread(bif_plus_set, _bih.biSize-sizeof(BITMAPINFOHEADER),1,pf);
     
     }
     fclose(pf);
 
     FILE *pf_1 = fopen("data/sample_result.bmp","wb");
-
-    int idx;
-    int j;
-
-    char *buf = (char*)malloc(size);
+    int i;
+    int j=0;
+    int padding=0;
+    pImage buf;
     int period = width -1;
-    int idx_blue;
-    int idx_green; 
-    int idx_red;
+    int WIDTH;
+    int pixelsize=0;
 
     if(pf_1!=NULL)
     {
 
-        fwrite(&bfh, sizeof(BITMAPFILEHEADER), 1, pf_1);
+        fwrite(&_bfh, 1, sizeof(BITMAPFILEHEADER), pf_1);
 
-        fwrite(&bih, sizeof(BITMAPINFOHEADER), 1, pf_1);
-        fwrite(paddingset, padding, 1, pf_1);
+        fwrite(&_bih, 1, sizeof(BITMAPINFOHEADER), pf_1);
+        fwrite(bif_plus_set, 1, _bih.biSize-sizeof(BITMAPINFOHEADER),pf_1);
+        buf = getbuff();
+        padding = ((PIXEL_ALIGN - ((width * bitcount / 8) % PIXEL_ALIGN)) % PIXEL_ALIGN);
+        pixelsize = getPixelSize(bitcount);
+        WIDTH = width*pixelsize + padding;
 
-        j=0;    
-        for(idx=0; idx<size; idx++)
+        for(i=(height-1);i>=0 ; i--)
         {
-            idx_blue = 3*((height)+j*(period))-1;
-            idx_green = 3*((height)+j*(period));
-            idx_red = 3*((height)+j*(period))+1;
-
-            if(idx==idx_blue)
+            for(j;j<width;j++)
             {
-                buf[idx] = -1;
-            }
-            if(idx == idx_green)
-            {
-                buf[idx] = -1;
-            }
-            else if(idx == idx_red)
-            {
-                buf[idx] = 0;
-                if(j== height-1)
+                if(j== (height-1-i))
                 {
-                    j;
+                    pRGBTRIPLE pRGB = (pRGBTRIPLE)&buf[(i * WIDTH) + (j * pixelsize)];
+                    pRGB->rgbtRed = 255;
+                    pRGB->rgbtGreen = 0;
+                    pRGB->rgbtBlue = 0;
                 }
-                else
-                {
-                    j++;
-                    
-                } 
-                
-            }
-            else
-            {
-                buf[idx] = image[idx];
-            }
 
+            }
+            
         }
            
 
         printf("%d",j);
-        // }
         
-        fwrite(buf,size,1,pf_1);
+        
+        fwrite(buf,1,_bih.biSizeImage,pf_1);
     }
+    free(buf);
 
     fclose(pf_1);
+
 
 
 
