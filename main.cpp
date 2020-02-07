@@ -19,7 +19,8 @@ int main(int argc, char* argv[])
 	printf("Hello Hand-written recognition world\n");
 
 	//ret = _process(argc, argv);
-	_bmpProcess(argc, argv);
+	//_bmpProcess(argc, argv);
+	_mnistProc(argc, argv);
 
 	return ret;
 }

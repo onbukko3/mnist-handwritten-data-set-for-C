@@ -53,5 +53,6 @@ pBMPFileHeader getBMPFileHeader(void);
 pBMPInfoHeader getBMPInfoHeader(void);
 unsigned char *getBMPBuffer(void);
 void _bmpProcess(int argc, char* argv[]);
+void _mnistProc(int argc, char* argv[]);
 
 #endif
