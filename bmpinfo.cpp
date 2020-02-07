@@ -177,7 +177,7 @@ void _mnistProc(int argc, char* argv[])
 		int padding = 0;
 		int WIDTH = 0;
 		int pixelSize = 0;
-        char name[10];
+        char name[256];
         int count = 0;
         int sample = 0;
         int mn = 0;
@@ -215,6 +215,7 @@ void _mnistProc(int argc, char* argv[])
                 }
             }
             writeBMPFile(name);
+            printf("write BMP file : %s\n", name);
         }
         fclose(pmnist);
         free(pInfoHeader);
