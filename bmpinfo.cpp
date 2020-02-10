@@ -10,10 +10,21 @@ fclose(FILE_POINTER); \
 return FALSE; \
 } while(0);
 
+#define errorVoidReturn(FILE_POINTER) \
+do{ \
+printf("*error occured in %s:%d\n", __FILE__ , __LINE__); \
+fclose(FILE_POINTER); \
+return; \
+} while(0);
+
+#define MAGIC_NUMBER 2051
+
 static BMPFileHeader _bmpFileHeader;
 static BMPInfoHeader _bmpInfoHeader;
 static unsigned char *pImgBuf;
 static unsigned char *pInfoHeader;
+
+static void setBMPBuffer(pImg buf);
 
 // 24bit BMP file case
 BOOL openBMPFile(char *path)
@@ -110,6 +121,11 @@ unsigned char *getBMPBuffer(void)
     return pImgBuf;
 }
 
+void setBMPBuffer(pImg buf)
+{
+    pImgBuf = (unsigned char*)buf;
+}
+
 void _bmpProcess(int argc, char* argv[])
 {
 	pBMPFileHeader pfile;
@@ -165,14 +181,17 @@ void _mnistProc(int argc, char* argv[])
 	pImg pimage;
 	int widthCnt = 0;
 	int hightCnt = 0;
-
-	if(argc < 3)
+    FILE *pmnist;
+        
+	if(argc < 2)
 	{
-		printf("usage : {app Name} {input BMP file path} {output BMP file path}\n");
+		printf("usage : %s {input MNIST file path}\n", argv[0]);
 		return;
 	}
 
-	if(openBMPFile(argv[1]))
+    pmnist = fopen(argv[1], "rb");
+
+    if(pmnist != NULL)
 	{
 		int padding = 0;
 		int WIDTH = 0;
@@ -181,28 +200,48 @@ void _mnistProc(int argc, char* argv[])
         int count = 0;
         int sample = 0;
         int mn = 0;
-        FILE *pmnist;
         unsigned char buf;
 
-        pmnist = fopen(argv[2], "rb");
-        //fseek(pmnist, sizeof(int), SEEK_SET);
+        pfile = getBMPFileHeader();
+		pinfo = getBMPInfoHeader();
+
+        pfile->bfType = 19778;
+        pfile->bfSize = 2406;
+        pfile->bfReserved1 = 0;
+        pfile->bfReserved2 = 0;
+        pfile->bfOffBits = 54;
+
+        pinfo->biSize = 40;
+        pinfo->biWidth = 28;
+        pinfo->biHeight = 28;
+        pinfo->biplanes = 1;
+        pinfo->biBitCount = 24;
+        pinfo->biCompression = 0;
+        pinfo->biSizeImage = 2352;
+        pinfo->biXPelsPerMeter = 0;
+        pinfo->biYPelsPerMeter = 0;
+        pinfo->biClrUsed = 0;
+        pinfo->biClrImportant = 0;
+
         fread(&mn, 1, 4, pmnist);
         mn = be32toh(mn);
+        if(mn != MAGIC_NUMBER)
+            errorVoidReturn(pmnist);
+
         fread(&sample, 1, 4, pmnist);
         sample = be32toh(sample);
         fseek(pmnist, sizeof(int)* 2, SEEK_CUR);
 
-		printf("open BMP file : %s\n", argv[1]);
-		pfile = getBMPFileHeader();
-		pinfo = getBMPInfoHeader();
-		pimage = getBMPBuffer();
+		printf("open BMP file : %s, sample : %d\n", argv[1], sample);
+		pimage = (pImg)malloc(pinfo->biSizeImage);
+        setBMPBuffer(pimage);
 		padding = getPadding(pinfo->biWidth , pinfo->biBitCount); // 8: 1byte = 8bit, align with 4byte
 		pixelSize = getPixelSize(pinfo->biBitCount);
 		WIDTH = pinfo->biWidth * pixelSize + padding;
 		
         for(count = 0; count < sample; count++)
         {
-            sprintf(name, "%s_%d.bmp", argv[2], count);
+            sprintf(name, "%s_%d.bmp", argv[1], count);
             for(hightCnt = pinfo->biHeight - 1; hightCnt >= 0 ; hightCnt--)
             {
                 for(widthCnt = 0; widthCnt < pinfo->biWidth; widthCnt++)
