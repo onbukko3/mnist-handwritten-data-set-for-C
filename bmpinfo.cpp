@@ -226,7 +226,10 @@ void _mnistProc(int argc, char* argv[])
         fread(&mn, 1, 4, pmnist);
         mn = be32toh(mn);
         if(mn != MAGIC_NUMBER)
+        {
+            printf("It is not a MNIST image set.\n");
             errorVoidReturn(pmnist);
+        }
 
         fread(&sample, 1, 4, pmnist);
         sample = be32toh(sample);
