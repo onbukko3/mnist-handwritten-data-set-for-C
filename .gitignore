@@ -114,14 +114,11 @@ bmpreader/
 data/test.txt
 dbg.sh
 exercises/
-fr_bmp
 hwr
 jpeg-9d/
-linked_list.h
 pthread_create
 random_number.cpp
 singly_linked_list_char.cpp
 singly_linked_list_number.cpp
-textreader/
 fr_bmp_square
 
