@@ -6,7 +6,7 @@
 
 int main()
 {
-    FILE *pf = fopen("data/sample.bmp", "rb");
+    FILE *pf = fopen("data/image_1.bmp", "rb");
 
     BITMAPFILEHEADER _bfh;
     BITMAPINFOHEADER _bih;
@@ -40,7 +40,7 @@ int main()
 
     //write the new file
 
-    FILE *pf_1 = fopen("data/sample_result.bmp","wb");
+    FILE *pf_1 = fopen("data/image_1_result.bmp","wb");
     int i;
     int j;
     int padding=0;
