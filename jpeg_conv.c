@@ -1,27 +1,69 @@
-#include "jpeg-build/include/jpeglib.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include "jpeg-build/include/jpeglib.h"
+#include "setjmp.h"
+#include "bmp.h"
 
-int main()
+
+struct jpeg_decompress_struct cinfo;
+
+struct my_error_mgr {
+  struct jpeg_error_mgr pub;	/* "public" fields */
+
+  jmp_buf setjmp_buffer;	/* for return to caller */
+};
+
+typedef struct my_error_mgr * my_error_ptr;
+
+JSAMPARRAY buffer;
+
+BITMAPFILEHEADER _bfh;
+BITMAPINFOHEADER _bih;
+
+
+METHODDEF(void)
+my_error_exit (j_common_ptr cinfo)
 {
-    struct jpeg_decompress_struct cinfo;
 
-    FILE *pf = fopen("./data/jpeg/4k-wallpaper-automobile-automotive-branding-1149137.jpg","rb");
-    JSAMPARRAY buffer;
+    my_error_ptr myerr = (my_error_ptr) cinfo->err;
+
+    (*cinfo->err->output_message) (cinfo);
+
+    longjmp(myerr->setjmp_buffer,1);
+}
+
+GLOBAL(int)
+read_jpeg_file (char *filename)
+{
+
+    struct my_error_mgr jerr;
+    FILE *srcfile;
     int row_stride;
 
-    if(pf == NULL)
+    if((srcfile = fopen(filename,"rb")) == NULL)
     {
-        fprintf(stderr, "can't open it! \n");
+        fprintf(stderr, "cannot open %s\n", filename);
+        return 0;
+    }
+
+    cinfo.err = jpeg_std_error(&jerr.pub);
+    jerr.pub.error_exit = my_error_exit;
+
+    if(setjmp(jerr.setjmp_buffer)){
+        jpeg_destroy_decompress(&cinfo);
+        fclose(srcfile);
         return 0;
     }
 
     jpeg_create_decompress(&cinfo);
-    jpeg_stdio_src(&cinfo, pf);
-    jpeg_read_header(&cinfo, TRUE);
-    jpeg_start_decompress(&cinfo);
+
+    jpeg_stdio_src(&cinfo, srcfile);
+
+    (void) jpeg_read_header(&cinfo, TRUE);
+
+    (void) jpeg_start_decompress(&cinfo);
 
     row_stride = cinfo.output_width * cinfo.output_components;
 
@@ -29,18 +71,71 @@ int main()
 
     while (cinfo.output_scanline < cinfo.output_height)
     {
-        jpeg_read_scanlines(&cinfo, buffer, 1);
+        (void) jpeg_read_scanlines(&cinfo, buffer, row_stride);
 
-        put_scanline_someplace(buffer[0], row_stride);
-
+        buffer[0] = (JSAMPLE*)malloc(row_stride);
     }
 
-    jpeg_finish_decompress(&cinfo);
+    (void) jpeg_finish_decompress(&cinfo);
 
     jpeg_destroy_decompress(&cinfo);
 
-    fclose(pf);
+    fclose(srcfile);
 
     return 1;
+    
+}
+
+METHODDEF(void)
+convert_jpeg_to_bmp()
+{
+    //bmp file header
+    _bfh.bfType = ((unsigned int)('M' << 8) | 'B');
+    
+
+    //bmp info header
+    _bih.biBitCount = cinfo.output_components*8;
+    _bih.biWidth = cinfo.image_width;
+    _bih.biHeight = cinfo.image_height;
+    _bih.biSizeImage = _bih.biWidth * _bih.biHeight;
+
+}
+
+GLOBAL(int)
+write_bmp_file(char *filename)
+{
+    FILE *tgtFile;
+
+    if((tgtFile = fopen(filename,"wb")) == NULL)
+    {
+        fprintf(stderr, "cannot write %s\n", filename);
+        return 0;
+    }
+
+    fwrite(&_bfh, 1, sizeof(BITMAPFILEHEADER), tgtFile);
+    fwrite(&_bih, 1, sizeof(BITMAPINFOHEADER), tgtFile);
+    fwrite(buffer, 1, sizeof(buffer), tgtFile);
+
+    fclose(tgtFile);
+
+    return 1;
+}
+
+int main()
+{
+    //int argc, char* argv[]
+    // if(argc<3)
+    // {
+    //     printf("usage : {app Name} {input JPEG file path} {output BMP file path}\n");
+	// 	return 0;
+    // }
+    
+    read_jpeg_file("data/jpeg/4k-wallpaper-automobile-automotive-branding-1149137.jpg");
+    
+    convert_jpeg_to_bmp;
+
+    write_bmp_file("data/jpeg/4k-wallpaper-automobile-automotive-branding-1149137.bmp");
+
+    return 0;
 
 }

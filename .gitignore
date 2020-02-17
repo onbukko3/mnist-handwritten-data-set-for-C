@@ -110,12 +110,15 @@ male.txt
 fr_bmp_thread.cpp
 -g
 .vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
 bmpreader/
 data/test.txt
 dbg.sh
 exercises/
 hwr
 jpeg-9d/
+jpeg-build/
 pthread_create
 random_number.cpp
 singly_linked_list_char.cpp
