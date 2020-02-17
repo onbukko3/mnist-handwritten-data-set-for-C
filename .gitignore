@@ -118,7 +118,6 @@ dbg.sh
 exercises/
 hwr
 jpeg-9d/
-jpeg-build/
 pthread_create
 random_number.cpp
 singly_linked_list_char.cpp
