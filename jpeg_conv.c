@@ -17,11 +17,11 @@ struct my_error_mgr {
 
 typedef struct my_error_mgr * my_error_ptr;
 
-JSAMPARRAY buffer;
+// JSAMPARRAY buffer;
+unsigned char *buffer_bmp;
 
 BITMAPFILEHEADER _bfh;
 BITMAPINFOHEADER _bih;
-
 
 METHODDEF(void)
 my_error_exit (j_common_ptr cinfo)
@@ -68,15 +68,16 @@ read_jpeg_file (char *filename)
 
     row_stride = cinfo.output_width * cinfo.output_components;
 
-    buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, 1);
+    // buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, 1);
+
+    buffer_bmp = (unsigned char*)malloc(row_stride * cinfo.output_height);
 
     while (cinfo.output_scanline < cinfo.output_height)
-    {
-        (void) jpeg_read_scanlines(&cinfo, buffer, 1);
+    {   
+        unsigned char* buffer[1];
 
-        int i = 0;
-        buffer[i] = (JSAMPLE*)malloc(row_stride);
-        i++;
+        buffer[0] = buffer_bmp + (cinfo.output_scanline) * row_stride;
+        (void) jpeg_read_scanlines(&cinfo, buffer, 1);
     }
 
     (void) jpeg_finish_decompress(&cinfo);
@@ -101,8 +102,8 @@ convert_jpeg_to_bmp()
     
     //bmp info header
     _bih.biBitCount = cinfo.output_components*8;
-    _bih.biWidth = cinfo.image_width;
-    _bih.biHeight = cinfo.image_height;
+    _bih.biWidth = cinfo.output_width;
+    _bih.biHeight = cinfo.output_height;
     _bih.biSizeImage = _bih.biWidth * _bih.biHeight;
 
 }
@@ -120,7 +121,7 @@ write_bmp_file(char *filename)
 
     fwrite(&_bfh, 1, sizeof(BITMAPFILEHEADER), tgtFile);
     fwrite(&_bih, 1, sizeof(BITMAPINFOHEADER), tgtFile);
-    fwrite(buffer, 1, sizeof(buffer), tgtFile);
+    fwrite(buffer_bmp, 1, cinfo.output_width*cinfo.output_height*cinfo.output_components, tgtFile);
 
     fclose(tgtFile);
 
@@ -138,7 +139,7 @@ int main()
     
     read_jpeg_file("data/jpeg/4k-wallpaper-automobile-automotive-branding-1149137.jpg");
     
-    convert_jpeg_to_bmp;
+    convert_jpeg_to_bmp();
 
     write_bmp_file("data/jpeg/4k-wallpaper-automobile-automotive-branding-1149137.bmp");
 
