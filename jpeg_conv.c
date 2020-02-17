@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include "jpeg-build/include/jpeglib.h"
-#include "setjmp.h"
+#include <jpeglib.h>
+#include <setjmp.h>
 #include "bmp.h"
 
 
@@ -33,6 +33,7 @@ my_error_exit (j_common_ptr cinfo)
 
     longjmp(myerr->setjmp_buffer,1);
 }
+
 
 GLOBAL(int)
 read_jpeg_file (char *filename)
@@ -71,9 +72,11 @@ read_jpeg_file (char *filename)
 
     while (cinfo.output_scanline < cinfo.output_height)
     {
-        (void) jpeg_read_scanlines(&cinfo, buffer, row_stride);
+        (void) jpeg_read_scanlines(&cinfo, buffer, 1);
 
-        buffer[0] = (JSAMPLE*)malloc(row_stride);
+        int i = 0;
+        buffer[i] = (JSAMPLE*)malloc(row_stride);
+        i++;
     }
 
     (void) jpeg_finish_decompress(&cinfo);
@@ -91,8 +94,11 @@ convert_jpeg_to_bmp()
 {
     //bmp file header
     _bfh.bfType = ((unsigned int)('M' << 8) | 'B');
+    _bfh.bfReserved1 = 0;
+    _bfh.bfReserved2 = 0;
+    _bfh.bfSize = 122;
+    _bfh.bfOffBits = 108;
     
-
     //bmp info header
     _bih.biBitCount = cinfo.output_components*8;
     _bih.biWidth = cinfo.image_width;
