@@ -129,7 +129,7 @@ write_bmp_file(char *filename)
     int j;
     int padding=0;
     int WIDTH;
-    int pixelsize=0;
+    int count=0;
 
     if(tgtFile!=NULL)
     {
@@ -138,29 +138,41 @@ write_bmp_file(char *filename)
         fwrite(&_bih, 1, sizeof(BITMAPINFOHEADER), tgtFile);
         // traverse the picture 
         long size = _bih.biSizeImage;
+        int count = _bih.biBitCount;
         char temp;
+        padding = ((PIXEL_ALIGN - ((_bih.biWidth * _bih.biBitCount / 8) % PIXEL_ALIGN)) % PIXEL_ALIGN);
+        int pixelsize = getPixelSize(_bih.biBitCount);
+        WIDTH = _bih.biWidth*pixelsize + padding;
+
+        unsigned char *image = (unsigned char *)malloc(size);
+
+
         for(int i =0; i<size/2; ++i )
         {
             temp = buffer_bmp[i];
             buffer_bmp[i] = buffer_bmp[size -1 -i];
             buffer_bmp[size -1 -i] = temp;
         }
+        
+        memcpy(image, buffer_bmp, size);
 
-        padding = ((PIXEL_ALIGN - ((_bih.biWidth * _bih.biBitCount / 8) % PIXEL_ALIGN)) % PIXEL_ALIGN);
-        pixelsize = getPixelSize(_bih.biBitCount);
-        WIDTH = _bih.biWidth*pixelsize + padding;
-        for(i=(_bih.biHeight-1);i>=0 ; i--)
+        int HEIGHT = _bih.biHeight -1;
+        for(i=HEIGHT;i>=0 ; i--)
         {
-            for(j=0;j<(WIDTH/2);j++)
+            for(j=0;j<(_bih.biWidth);j++)
             {
-                temp = buffer_bmp[(i * WIDTH) + (j * pixelsize)];
-                buffer_bmp[(i * WIDTH) + (j * pixelsize)] = buffer_bmp[((i+1) * WIDTH)-1-(j*pixelsize)];
-                buffer_bmp[((i+1) * WIDTH) -1-(j*pixelsize)] = temp;
+                // if(j<_bih.biWidth/2)
+                // {
+                //     temp = buffer_bmp[(i * WIDTH) + (j*pixelsize) ];
+                //     buffer_bmp[(i * WIDTH) + (j*pixelsize) ] = buffer_bmp[((i+1) * WIDTH)-1-(j*pixelsize)];
+                //     buffer_bmp[((i+1) * WIDTH) -1-(j*pixelsize)] = temp;
 
-                // pRGBTRIPLE pRGB = (pRGBTRIPLE)&buffer_bmp[(i * WIDTH) + (j * pixelsize)];
-                // pRGB -> rgbtBlue = buffer[0];
-                // pRGB -> rgbtGreen = buffer[0];
-                // pRGB -> rgbtRed = buffer[0];  
+                // }
+
+                pRGBTRIPLE pRGB = (pRGBTRIPLE)&buffer_bmp[(i * WIDTH) + (j * pixelsize)];
+                pRGB -> rgbtBlue = image[(i * WIDTH) + ((_bih.biWidth - j) * pixelsize)];
+                pRGB -> rgbtGreen = image[(i * WIDTH) + ((_bih.biWidth - j) * pixelsize)+1];
+                pRGB -> rgbtRed = image[(i * WIDTH) + ((_bih.biWidth - j) * pixelsize)+2];  
 
             }
             
@@ -185,11 +197,11 @@ int main()
 	// 	return 0;
     // }
     
-    read_jpeg_file("data/jpeg/4k-wallpaper-automobile-automotive-branding-1149137.jpg");
+    read_jpeg_file("data/jpeg/view-of-elephant-in-water-247431.jpg");
     
     convert_jpeg_to_bmp();
 
-    write_bmp_file("data/jpeg/4k-wallpaper-automobile-automotive-branding-1149137.bmp");
+    write_bmp_file("data/jpeg/view-of-elephant-in-water-247431.bmp");
 
     return 0;
 
