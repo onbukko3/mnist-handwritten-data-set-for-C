@@ -19,6 +19,8 @@ typedef struct my_error_mgr * my_error_ptr;
 
 // JSAMPARRAY buffer;
 unsigned char *buffer_bmp;
+unsigned char* buffer[1];
+
 
 BITMAPFILEHEADER _bfh;
 BITMAPINFOHEADER _bih;
@@ -68,24 +70,27 @@ read_jpeg_file (char *filename)
 
     row_stride = cinfo.output_width * cinfo.output_components;
 
+
     // buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, 1);
-
-    buffer_bmp = (unsigned char*)malloc(row_stride * cinfo.output_height);
-
+    buffer_bmp = (unsigned char*)malloc(row_stride*cinfo.output_height);
+    int i  = 0;
+    int j = 0;
     while (cinfo.output_scanline < cinfo.output_height)
     {   
-        unsigned char* buffer[1];
 
         buffer[0] = buffer_bmp + (cinfo.output_scanline) * row_stride;
-        (void) jpeg_read_scanlines(&cinfo, buffer, 1);
+        (void) jpeg_read_scanlines(&cinfo, &buffer[0], 1);
+        // memcpy(buffer_bmp, *buffer, sizeof(buffer));   
+        
     }
-
+    // printf("the number of size: %ld\n", sizeof(buffer_bmp));
     (void) jpeg_finish_decompress(&cinfo);
 
     jpeg_destroy_decompress(&cinfo);
 
     fclose(srcfile);
-
+    
+    // free(buffer);
     return 1;
     
 }
@@ -97,14 +102,15 @@ convert_jpeg_to_bmp()
     _bfh.bfType = ((unsigned int)('M' << 8) | 'B');
     _bfh.bfReserved1 = 0;
     _bfh.bfReserved2 = 0;
-    _bfh.bfSize = 122;
+    _bfh.bfSize = cinfo.output_height*cinfo.output_components + 54;
     _bfh.bfOffBits = 108;
     
     //bmp info header
+    _bih.biSize = 40;
     _bih.biBitCount = cinfo.output_components*8;
     _bih.biWidth = cinfo.output_width;
     _bih.biHeight = cinfo.output_height;
-    _bih.biSizeImage = _bih.biWidth * _bih.biHeight;
+    _bih.biSizeImage = _bih.biWidth * _bih.biHeight*cinfo.output_components;
 
 }
 
@@ -118,10 +124,52 @@ write_bmp_file(char *filename)
         fprintf(stderr, "cannot write %s\n", filename);
         return 0;
     }
+   
+    int i;
+    int j;
+    int padding=0;
+    int WIDTH;
+    int pixelsize=0;
 
-    fwrite(&_bfh, 1, sizeof(BITMAPFILEHEADER), tgtFile);
-    fwrite(&_bih, 1, sizeof(BITMAPINFOHEADER), tgtFile);
-    fwrite(buffer_bmp, 1, cinfo.output_width*cinfo.output_height*cinfo.output_components, tgtFile);
+    if(tgtFile!=NULL)
+    {
+
+        fwrite(&_bfh, 1, sizeof(BITMAPFILEHEADER), tgtFile);
+        fwrite(&_bih, 1, sizeof(BITMAPINFOHEADER), tgtFile);
+        // traverse the picture 
+        long size = _bih.biSizeImage;
+        char temp;
+        for(int i =0; i<size/2; ++i )
+        {
+            temp = buffer_bmp[i];
+            buffer_bmp[i] = buffer_bmp[size -1 -i];
+            buffer_bmp[size -1 -i] = temp;
+        }
+
+        padding = ((PIXEL_ALIGN - ((_bih.biWidth * _bih.biBitCount / 8) % PIXEL_ALIGN)) % PIXEL_ALIGN);
+        pixelsize = getPixelSize(_bih.biBitCount);
+        WIDTH = _bih.biWidth*pixelsize + padding;
+        for(i=(_bih.biHeight-1);i>=0 ; i--)
+        {
+            for(j=0;j<(WIDTH/2);j++)
+            {
+                temp = buffer_bmp[(i * WIDTH) + (j * pixelsize)];
+                buffer_bmp[(i * WIDTH) + (j * pixelsize)] = buffer_bmp[((i+1) * WIDTH)-1-(j*pixelsize)];
+                buffer_bmp[((i+1) * WIDTH) -1-(j*pixelsize)] = temp;
+
+                // pRGBTRIPLE pRGB = (pRGBTRIPLE)&buffer_bmp[(i * WIDTH) + (j * pixelsize)];
+                // pRGB -> rgbtBlue = buffer[0];
+                // pRGB -> rgbtGreen = buffer[0];
+                // pRGB -> rgbtRed = buffer[0];  
+
+            }
+            
+        }
+
+        fwrite(buffer_bmp,1,size,tgtFile);
+    }
+
+    free(buffer_bmp);
 
     fclose(tgtFile);
 
