@@ -78,7 +78,7 @@ read_jpeg_file (char *filename)
     while (cinfo.output_scanline < cinfo.output_height)
     {   
 
-        buffer[0] = buffer_bmp + (cinfo.output_scanline) * row_stride;
+        buffer[0] = buffer_bmp + (cinfo.output_scanline) * row_stride;    
         (void) jpeg_read_scanlines(&cinfo, &buffer[0], 1);
         // memcpy(buffer_bmp, *buffer, sizeof(buffer));   
         
@@ -103,7 +103,7 @@ convert_jpeg_to_bmp()
     _bfh.bfReserved1 = 0;
     _bfh.bfReserved2 = 0;
     _bfh.bfSize = cinfo.output_height*cinfo.output_components + 54;
-    _bfh.bfOffBits = 108;
+    _bfh.bfOffBits = 54;
     
     //bmp info header
     _bih.biSize = 40;
@@ -137,12 +137,12 @@ write_bmp_file(char *filename)
         fwrite(&_bfh, 1, sizeof(BITMAPFILEHEADER), tgtFile);
         fwrite(&_bih, 1, sizeof(BITMAPINFOHEADER), tgtFile);
         // traverse the picture 
-        long size = _bih.biSizeImage;
-        int count = _bih.biBitCount;
-        char temp;
         padding = ((PIXEL_ALIGN - ((_bih.biWidth * _bih.biBitCount / 8) % PIXEL_ALIGN)) % PIXEL_ALIGN);
         int pixelsize = getPixelSize(_bih.biBitCount);
         WIDTH = _bih.biWidth*pixelsize + padding;
+        long size = _bih.biSizeImage+padding;
+        int count = _bih.biBitCount;
+        char temp;
 
         unsigned char *image = (unsigned char *)malloc(size);
 
