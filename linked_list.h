@@ -6,11 +6,11 @@ typedef struct __list{
 } linkedList;
 
 //;inked list for number data
-typedef struct __list_num{
-    struct __node_num *cur;
-    struct __node_num *head;
-    struct __node_num *tail;    
-} linkedList_num;
+// typedef struct __list_num{
+//     struct __node_num *cur;
+//     struct __node_num *head;
+//     struct __node_num *tail;    
+// } linkedList_num;
 
 // node for character data
 typedef struct __node{
@@ -19,12 +19,12 @@ typedef struct __node{
 } node;
 
 //node for number data
-typedef struct __node_num{
-    float data;
-    struct __node_num *next; // the address of the node
-} node_num;
+// typedef struct __node_num{
+//     float data;
+//     struct __node_num *next; // the address of the node
+// } node_num;
 
-void createNode(linkedList *L, char *initData);
-void createNode(linkedList_num *L, float initData);
+void createNode_char(linkedList *L, char *initData);
+// void createNode_num(linkedList_num *L, float initData);
 void deleteLastNode(linkedList *L);
 void printNode(linkedList *L);
