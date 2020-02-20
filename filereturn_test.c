@@ -14,7 +14,8 @@ typedef struct _STRING_
 int main()
 {
     linkedList * L;
-    char *path = "/home/hsji/study";
+    char *path = (char*)malloc(sizeof(char)*50);
+    strcpy(path, "./data/");
     DIR *dir;
     struct dirent *ent;
     pSTRING pBuf;
@@ -32,11 +33,13 @@ int main()
         while((ent=readdir(dir))!=NULL)
         {
             // printf("%s\n", ent->d_name);
-            name = (char *)malloc(ent->d_reclen);
-            strcpy(name, ent->d_name);
-            createNode_char(L, name);
-            // printf("%s", L->head->data);
-            idx++;
+            // name = (char *)malloc(sizeof(char)*ent->d_reclen);
+            // strcpy(name, ent->d_name);
+            if(strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, ".")==0) 
+            continue;
+            else 
+                createNode_char(L, ent->d_name);
+            
         }
         closedir(dir);
     }
@@ -45,8 +48,26 @@ int main()
         perror("");
         return EXIT_FAILURE;
     }
+    node *p = L ->head;
 
-    printNode(L);
+    while (p !=NULL)
+    {
+        name = (char*)malloc(sizeof(char)*strlen(p->data));
+        strcpy(name, p->data);
+        if(strcmp(p->data, "..") == 0 || strcmp(p->data, ".")==0)
+        {
+            p = p->next;
+            continue;
+        }
+        else;
+            printf("%s\n", p->data);
+            strcat(path, name);
+            // free(name);
+            p = p->next;
+            
 
+    }
+    
+    
     return 0;
 }

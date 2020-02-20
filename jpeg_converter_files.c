@@ -9,6 +9,7 @@
 #include "linked_list.h"
 #include "bmp.h"
 
+#define INVENTORY_MAX_STRING_SIZE 50
 
 struct jpeg_decompress_struct cinfo;
 
@@ -206,7 +207,10 @@ void getFiles(char *path)
     {
         while((ent=readdir(dir))!=NULL)
         {
-            createNode_char(L, ent->d_name);
+            if(strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, ".")==0) 
+                continue;
+            else 
+                createNode_char(L, ent->d_name);
         }
         closedir(dir);
     }
@@ -218,13 +222,12 @@ void getFiles(char *path)
     
 }
 
-int main(int argc, char*argv[])
+int main(int argc, char *argv[])
 {
-    char *path;
-    char *output_path;
+    char *path = (char*)malloc(sizeof(char)*INVENTORY_MAX_STRING_SIZE);
+    char *output_path = (char*)malloc(sizeof(char)*INVENTORY_MAX_STRING_SIZE);
     char *filename;
     char *filename_output;
-    node *p = L->head;
 
     if(argc<3)
     {
@@ -239,18 +242,22 @@ int main(int argc, char*argv[])
     
     getFiles(path);
 
+    node *p = L->head;
+
     while(p != NULL)
     {
-        strcat(path,p->data);
+        
+        strcat(path, p->data);
 
         read_jpeg_file(path);
         
         convert_jpeg_to_bmp();
 
         strncpy(output_path, p->data, strlen(output_path)+strlen(p->data)-3);
-        strcat(output_path, "bmp");
+        strcat("bmp",output_path);
         write_bmp_file(output_path);
 
+        p = p->next;
     }
 
     return 0;
