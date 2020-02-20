@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <dirent.h>
 #include <unistd.h>
 #include <string.h>
 #include <jpeglib.h>
 #include <setjmp.h>
+#include "linked_list.h"
 #include "bmp.h"
 
 
@@ -21,6 +24,7 @@ typedef struct my_error_mgr * my_error_ptr;
 unsigned char *buffer_bmp;
 unsigned char* buffer[1];
 
+linkedList *L;
 
 BITMAPFILEHEADER _bfh;
 BITMAPINFOHEADER _bih;
@@ -188,20 +192,66 @@ write_bmp_file(char *filename)
     return 1;
 }
 
-int main()
+void getFiles(char *path)
 {
-    //int argc, char* argv[]
-    // if(argc<3)
-    // {
-    //     printf("usage : {app Name} {input JPEG file path} {output BMP file path}\n");
-	// 	return 0;
-    // }
-    
-    read_jpeg_file("data/jpeg/view-of-elephant-in-water-247431.jpg");
-    
-    convert_jpeg_to_bmp();
+    DIR *dir;
+    struct dirent *ent;
+    dir = opendir(path);
+    L = (linkedList*)malloc(sizeof(linkedList));
+    L->head = NULL;
+    L->tail = NULL;
 
-    write_bmp_file("data/jpeg/view-of-elephant-in-water-247431.bmp");
+
+    if(dir != NULL)
+    {
+        while((ent=readdir(dir))!=NULL)
+        {
+            createNode_char(L, ent->d_name);
+        }
+        closedir(dir);
+    }
+    else
+    {
+        perror("");
+    }
+    
+    
+}
+
+int main(int argc, char*argv[])
+{
+    char *path;
+    char *output_path;
+    char *filename;
+    char *filename_output;
+    node *p = L->head;
+
+    if(argc<3)
+    {
+        printf("usage : {app Name} {input JPEG file path} {output BMP file path}\n");
+		return 0;
+    }
+    else
+    {
+        path = argv[1];
+        output_path = argv[2];
+    }
+    
+    getFiles(path);
+
+    while(p != NULL)
+    {
+        strcat(path,p->data);
+
+        read_jpeg_file(path);
+        
+        convert_jpeg_to_bmp();
+
+        strncpy(output_path, p->data, strlen(output_path)+strlen(p->data)-3);
+        strcat(output_path, "bmp");
+        write_bmp_file(output_path);
+
+    }
 
     return 0;
 
