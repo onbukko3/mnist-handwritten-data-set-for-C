@@ -15,7 +15,7 @@ int main()
 {
     linkedList * L;
     char *path = (char*)malloc(sizeof(char)*50);
-    strcpy(path, "./data/");
+    strcpy(path, "./data/jpeg/");
     DIR *dir;
     struct dirent *ent;
     pSTRING pBuf;
@@ -35,7 +35,7 @@ int main()
             // printf("%s\n", ent->d_name);
             // name = (char *)malloc(sizeof(char)*ent->d_reclen);
             // strcpy(name, ent->d_name);
-            if(strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, ".")==0) 
+            if(strcmp(ent->d_name, "..") == 0 || strcmp(ent->d_name, ".")==0) 
             continue;
             else 
                 createNode_char(L, ent->d_name);
@@ -60,10 +60,11 @@ int main()
             continue;
         }
         else;
-            printf("%s\n", p->data);
             strcat(path, name);
+            printf("%s\n", name);
             // free(name);
             p = p->next;
+            strcpy(path, "./data/jpeg/");
             
 
     }

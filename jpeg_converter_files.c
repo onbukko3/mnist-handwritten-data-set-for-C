@@ -9,7 +9,7 @@
 #include "linked_list.h"
 #include "bmp.h"
 
-#define INVENTORY_MAX_STRING_SIZE 50
+#define INVENTORY_MAX_STRING_SIZE 1000
 
 struct jpeg_decompress_struct cinfo;
 
@@ -207,7 +207,7 @@ void getFiles(char *path)
     {
         while((ent=readdir(dir))!=NULL)
         {
-            if(strcmp(ent->d_name, ".") == 0 || strcmp(ent->d_name, ".")==0) 
+            if(strcmp(ent->d_name, "..") == 0 || strcmp(ent->d_name, ".")== 0) 
                 continue;
             else 
                 createNode_char(L, ent->d_name);
@@ -221,6 +221,16 @@ void getFiles(char *path)
     
     
 }
+
+// void eliminatejpg(char *str)
+// {
+//     int j = 0;
+//     for(int i =0; j < strlen(str); i++)
+//     {
+//         if(str[i] == ".") continue;
+//         else if (str[i] == "j")
+//     }
+// }
 
 int main(int argc, char *argv[])
 {
@@ -237,28 +247,43 @@ int main(int argc, char *argv[])
     else
     {
         path = argv[1];
-        output_path = argv[2];
+        strcpy(output_path ,"./data/bmp/");
     }
     
     getFiles(path);
 
+    char *bmpformat = ".bmp";
+
     node *p = L->head;
+    char *name;
 
     while(p != NULL)
     {
-        
-        strcat(path, p->data);
-
+        name = (char*)malloc(sizeof(char)*strlen(p->data));
+        strcpy(name, p->data);
+        filename = (char*)malloc(sizeof(char)*strlen(name));
+        // printf("%s\n",name);
+        strcpy(filename, name);
+        strcat(path, filename);
+        printf("%s\n", path);
         read_jpeg_file(path);
         
-        convert_jpeg_to_bmp();
+        // convert_jpeg_to_bmp();
+        filename_output = (char*)malloc(sizeof(char)*strlen(name));
+        strtok(name, ".");
+        strcpy(filename_output, name);
+        strcat(output_path, filename_output);
+        strcat(output_path, bmpformat);
+        printf("%s\n", output_path);
+        // write_bmp_file(output_path);
 
-        strncpy(output_path, p->data, strlen(output_path)+strlen(p->data)-3);
-        strcat("bmp",output_path);
-        write_bmp_file(output_path);
+        p = p -> next;
+        // path = NULL;
+        strcpy(path, "./data/jpeg/");
+        strcpy(output_path, "./data/bmp/");
+        // strcpy(output_path, argv[2]);
 
-        p = p->next;
-    }
+    }    
 
     return 0;
 
