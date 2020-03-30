@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <dirent.h>
 #include "linked_list.h"
 
@@ -13,16 +14,25 @@ typedef struct _STRING_
 
 int main()
 {
+    char *path;
+    path = (char*)malloc(sizeof(char*)*1000);
+    path = "/home/hsji/study/clanguage/mnist-handwritten-data-set-for-C/data";
+    getfiles(path);
+
+    return 0;
+
+}
+void getfiles(const char* path)
+{
     linkedList * L;
-    char *path = (char*)malloc(sizeof(char)*50);
-    strcpy(path, "./data/jpeg/");
     DIR *dir;
     struct dirent *ent;
-    pSTRING pBuf;
+    struct stat buf;
     dir = opendir(path);
-    int idx =0;
     int name_size;
-    char *name ;
+    char *name;
+    char *filename ;
+    char folder_name[1024];
     L = (linkedList*)malloc(sizeof(linkedList));
     L->head = NULL;
     L->tail = NULL;
@@ -33,42 +43,76 @@ int main()
         while((ent=readdir(dir))!=NULL)
         {
             // printf("%s\n", ent->d_name);
-            // name = (char *)malloc(sizeof(char)*ent->d_reclen);
-            // strcpy(name, ent->d_name);
-            if(strcmp(ent->d_name, "..") == 0 || strcmp(ent->d_name, ".")==0) 
-            continue;
-            else 
-                createNode_char(L, ent->d_name);
-            
+            char *type[2] = {NULL,};
+            int i =0;
+            filename = (char *)malloc(sizeof(char)*strlen(ent->d_name));
+            strcpy(filename, ent->d_name);
+
+            if(ent->d_type==8)
+            {
+                if(strchr(filename,'.')!=NULL)
+                {
+                    char *ptr = strtok(filename, ".");
+                    while(ptr != NULL)
+                    {
+                        type[i] = ptr;
+                        i++;
+
+                        ptr = strtok(NULL, " ");
+                    }
+                    if(strcmp(type[1],"jpg")==0 || strcmp(type[1], "bmp")==0)
+                    {
+                        createNode_char(L, ent->d_name);
+                    }
+                    else continue;    
+                }
+                else continue;
+            }
+
+            else if(ent->d_type == 4)
+            {
+                if(strcmp(ent->d_name, "..") == 0 || strcmp(ent->d_name, ".")==0) 
+                continue;
+                else
+                {
+                    strcpy(folder_name, path);
+                    strcat(folder_name, "/");
+                    strcat(folder_name,ent->d_name);
+                    getfiles(folder_name);
+                }
+                
+                    // printf("%s\n", path);
+                
+            }
         }
         closedir(dir);
     }
     else
     {
         perror("");
-        return EXIT_FAILURE;
     }
+    // printNode(L);
     node *p = L ->head;
 
     while (p !=NULL)
     {
         name = (char*)malloc(sizeof(char)*strlen(p->data));
         strcpy(name, p->data);
-        if(strcmp(p->data, "..") == 0 || strcmp(p->data, ".")==0)
-        {
-            p = p->next;
-            continue;
-        }
-        else;
-            strcat(path, name);
-            printf("%s\n", name);
-            // free(name);
-            p = p->next;
-            strcpy(path, "./data/jpeg/");
-            
+        // if(strcmp(p->data, "..") == 0 || strcmp(p->data, ".")==0)
+        // {
+        //     p = p->next;
+        //     continue;
+        // }
+        // else;
+        //     strcat(path, name);
+        //     printf("%s\n", name);
+        //     // free(name);
+        //     p = p->next;
+        //     strcpy(path, "./data/jpeg/");
+        printf("%s\n",name);
+        p = p->next;
 
     }
     
     
-    return 0;
 }
