@@ -6,17 +6,12 @@
 #include <dirent.h>
 #include "linked_list.h"
 
-typedef struct _STRING_
-{
-    char *str;
-    int length;
-}STRING, *pSTRING;
 
 int main()
 {
     char *path;
     path = (char*)malloc(sizeof(char*)*1000);
-    path = "/home/hsji/study/clanguage/mnist-handwritten-data-set-for-C/data";
+    path = "/home/hsji/study";
     getfiles(path);
 
     return 0;
@@ -27,7 +22,6 @@ void getfiles(const char* path)
     linkedList * L;
     DIR *dir;
     struct dirent *ent;
-    struct stat buf;
     dir = opendir(path);
     int name_size;
     char *name;
@@ -60,9 +54,13 @@ void getfiles(const char* path)
 
                         ptr = strtok(NULL, " ");
                     }
-                    if(strcmp(type[1],"jpg")==0 || strcmp(type[1], "bmp")==0)
+                    if(type[1] != NULL)
                     {
-                        createNode_char(L, ent->d_name);
+
+                        if(strcmp(type[1],"jpg")==0 || strcmp(type[1], "bmp")==0)
+                        {
+                            createNode_char(L, ent->d_name);
+                        }
                     }
                     else continue;    
                 }
@@ -98,20 +96,8 @@ void getfiles(const char* path)
     {
         name = (char*)malloc(sizeof(char)*strlen(p->data));
         strcpy(name, p->data);
-        // if(strcmp(p->data, "..") == 0 || strcmp(p->data, ".")==0)
-        // {
-        //     p = p->next;
-        //     continue;
-        // }
-        // else;
-        //     strcat(path, name);
-        //     printf("%s\n", name);
-        //     // free(name);
-        //     p = p->next;
-        //     strcpy(path, "./data/jpeg/");
         printf("%s\n",name);
         p = p->next;
-
     }
     
     
