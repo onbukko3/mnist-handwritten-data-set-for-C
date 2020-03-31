@@ -6,30 +6,42 @@
 #include <dirent.h>
 #include "linked_list.h"
 
+#define MAX_FOLDER_NAME 5012
+
+linkedList *L;
+
 
 int main()
 {
-    char *path;
-    path = (char*)malloc(sizeof(char*)*1000);
-    path = "/home/hsji/study";
-    getfiles(path);
+    char *start_path;
+    start_path = (char*)malloc(sizeof(char*)*MAX_FOLDER_NAME);
+    start_path = "/home/hsji/study/clanguage";
+    L = (linkedList*)malloc(sizeof(linkedList));
+    L->head = NULL;
+    L->tail = NULL; 
+    getfiles(start_path);
+    printNode(L);
 
     return 0;
 
 }
-void getfiles(const char* path)
+void getfiles(char* path)
 {
-    linkedList * L;
     DIR *dir;
     struct dirent *ent;
+    struct stat st;
     dir = opendir(path);
     int name_size;
     char *name;
     char *filename ;
     char folder_name[1024];
-    L = (linkedList*)malloc(sizeof(linkedList));
-    L->head = NULL;
-    L->tail = NULL;
+
+
+    // if(stat(path,&st) ==-1)
+    // {
+    //     perror("stat failed");
+    //     exit
+    // }
 
 
     if(dir != NULL)
@@ -41,6 +53,7 @@ void getfiles(const char* path)
             int i =0;
             filename = (char *)malloc(sizeof(char)*strlen(ent->d_name));
             strcpy(filename, ent->d_name);
+
 
             if(ent->d_type==8)
             {
@@ -57,10 +70,22 @@ void getfiles(const char* path)
                     if(type[1] != NULL)
                     {
 
-                        if(strcmp(type[1],"jpg")==0 || strcmp(type[1], "bmp")==0)
+                        if(strcmp(type[1],"jpg")==0 || strcmp(type[1], "bmp")==0 || strcmp(type[1], "gif")==0)
                         {
-                            createNode_char(L, ent->d_name);
+                            if(L != NULL)
+                            {
+
+                                createNode_char(L, ent->d_name);
+                            }
+                            // printf("%s\n", ent->d_name);
                         }
+                        else
+                        {
+                            // printf("%s\n", filename);
+                            continue;
+                        }
+                        
+                        
                     }
                     else continue;    
                 }
@@ -69,13 +94,14 @@ void getfiles(const char* path)
 
             else if(ent->d_type == 4)
             {
-                if(strcmp(ent->d_name, "..") == 0 || strcmp(ent->d_name, ".")==0) 
+                if(strcmp(ent->d_name, "..") == 0 || strcmp(ent->d_name, ".")==0 ) 
                 continue;
                 else
                 {
                     strcpy(folder_name, path);
                     strcat(folder_name, "/");
                     strcat(folder_name,ent->d_name);
+                    // printf("%s\n",folder_name);
                     getfiles(folder_name);
                 }
                 
@@ -88,17 +114,5 @@ void getfiles(const char* path)
     else
     {
         perror("");
-    }
-    // printNode(L);
-    node *p = L ->head;
-
-    while (p !=NULL)
-    {
-        name = (char*)malloc(sizeof(char)*strlen(p->data));
-        strcpy(name, p->data);
-        printf("%s\n",name);
-        p = p->next;
-    }
-    
-    
+    }    
 }
