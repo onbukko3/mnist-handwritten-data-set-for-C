@@ -10,7 +10,7 @@ void createNode_char(linkedList *L, char *initData)
     // char data = (data*)malloc(sizeof(char));
     node *New = (node*)malloc(sizeof(node));
     New -> data = (char*)malloc(sizeof(char)*strlen(initData));
-    // strncpy(New->data, initData, strlen(initData)-1);
+    strcpy(New->data, initData);
     // strcat(New->data, ", ");
     New -> next = NULL;
 
@@ -39,8 +39,16 @@ void printNode(linkedList *L)
     putchar('[');
     while (p != NULL)
     {
-        printf("%s", p->data);
-        p = p ->next;
+        if(p->next == NULL)
+        {
+            printf("%s", p->data);
+            p = p->next;
+        }
+        else
+        {
+            printf("%s, ", p->data);
+            p = p ->next;
+        }
     }
     putchar(']');
     putchar('\n');
