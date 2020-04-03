@@ -6,10 +6,11 @@
 #include <string.h>
 #include <jpeglib.h>
 #include <setjmp.h>
-#include "linked_list.h"
+#include "linkedlist.h"
 #include "bmp.h"
 
 #define INVENTORY_MAX_STRING_SIZE 1000
+#define MAX_FOLDER_NAME 5012
 
 struct jpeg_decompress_struct cinfo;
 
@@ -77,7 +78,7 @@ read_jpeg_file (char *filename)
 
 
     // buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, 1);
-    buffer_bmp = (unsigned char*)malloc(row_stride*cinfo.output_height);
+    buffer_bmp = (unsigned char*)malloc(sizeof(unsigned char*)*row_stride*cinfo.output_height);
     int i  = 0;
     int j = 0;
     while (cinfo.output_scanline < cinfo.output_height)
@@ -185,104 +186,156 @@ write_bmp_file(char *filename)
 
         fwrite(buffer_bmp,1,size,tgtFile);
     }
+    // if(buffer !=NULL)
+    // {
+    //     // free(buffer[0]);
+    //     buffer[0] = NULL;
 
-    free(buffer_bmp);
+    // }
+    // if(buffer_bmp !=NULL)
+    // {
+    //     free(buffer_bmp);
+    //     buffer_bmp = NULL;
+    // }
 
     fclose(tgtFile);
+
 
     return 1;
 }
 
-void getFiles(char *path)
+void getfiles(char* path)
 {
     DIR *dir;
     struct dirent *ent;
     dir = opendir(path);
-    L = (linkedList*)malloc(sizeof(linkedList));
-    L->head = NULL;
-    L->tail = NULL;
-
+    char *name;
+    char *filename ;
+    char folder_name[1024];
+    char *file_loc;
 
     if(dir != NULL)
     {
         while((ent=readdir(dir))!=NULL)
         {
-            if(strcmp(ent->d_name, "..") == 0 || strcmp(ent->d_name, ".")== 0) 
+            char *type[2] = {NULL,};
+            int i =0;
+            filename = (char *)malloc(sizeof(char)*ent->d_reclen);
+
+            strcpy(filename, ent->d_name);
+            file_loc = (char*)malloc(sizeof(char)*(strlen(path)+strlen(filename)+2));
+
+
+            if(ent->d_type==8)
+            {
+                if(strchr(filename,'.')!=NULL)
+                {
+                    char *ptr = strtok(filename, ".");
+                    while(ptr != NULL)
+                    {
+                        type[i] = ptr;
+                        i++;
+
+                        ptr = strtok(NULL, " ");
+                    }
+                    
+                    if(type[1] != NULL)
+                    {
+
+                        if(strcmp(type[1],"jpg")==0)
+                        {
+                            if(L != NULL)
+                            {
+                                if(filename != NULL)
+                                {
+                                    strcpy(file_loc, path);
+                                    strcat(file_loc, "/");
+                                    strcat(file_loc, ent->d_name);
+                                    createNode(L, file_loc);
+                                    free(filename);
+                                    filename = NULL;
+                                    if(file_loc != NULL)
+                                    {
+                                        free(file_loc);
+                                        file_loc = NULL;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            continue;
+                        } 
+                    }
+                    else continue;    
+                }
+                else continue;
+            }
+
+            else if(ent->d_type == 4)
+            {
+                if(strcmp(ent->d_name, "..") == 0 || strcmp(ent->d_name, ".")==0 ) 
                 continue;
-            else 
-                createNode_char(L, ent->d_name);
+                else
+                {
+                    strcpy(folder_name, path);
+                    strcat(folder_name, "/");
+                    strcat(folder_name,ent->d_name);
+                    if(ent->d_name[0] != '.')
+                    {
+                        getfiles(folder_name);
+                    }
+                }
+                                
+            }
         }
         closedir(dir);
     }
     else
     {
         perror("");
-    }
-    
-    
+    }    
 }
 
-// void eliminatejpg(char *str)
-// {
-//     int j = 0;
-//     for(int i =0; j < strlen(str); i++)
-//     {
-//         if(str[i] == ".") continue;
-//         else if (str[i] == "j")
-//     }
-// }
 
-int main(int argc, char *argv[])
+int main()
 {
-    char *path = (char*)malloc(sizeof(char)*INVENTORY_MAX_STRING_SIZE);
-    char *output_path = (char*)malloc(sizeof(char)*INVENTORY_MAX_STRING_SIZE);
-    char *filename;
-    char *filename_output;
-
-    if(argc<3)
-    {
-        printf("usage : {app Name} {input JPEG file path} {output BMP file path}\n");
-		return 0;
-    }
-    else
-    {
-        path = argv[1];
-        strcpy(output_path ,"./data/bmp/");
-    }
+    char *start_path;
+    start_path = (char*)malloc(sizeof(char*)*MAX_FOLDER_NAME);
+    start_path = "/home/hsji/study/clanguage";
+    L = (linkedList*)malloc(sizeof(linkedList));
+    L->head = NULL;
+    L->tail = NULL; 
     
-    getFiles(path);
+    getfiles(start_path);
+    // printNode(L);
+
 
     char *bmpformat = ".bmp";
 
     node *p = L->head;
-    char *name;
-
+    char *presentFile;
+    
     while(p != NULL)
     {
-        name = (char*)malloc(sizeof(char)*strlen(p->data));
-        strcpy(name, p->data);
-        filename = (char*)malloc(sizeof(char)*strlen(name));
-        // printf("%s\n",name);
-        strcpy(filename, name);
-        strcat(path, filename);
-        printf("%s\n", path);
-        read_jpeg_file(path);
-        
-        // convert_jpeg_to_bmp();
-        filename_output = (char*)malloc(sizeof(char)*strlen(name));
-        strtok(name, ".");
-        strcpy(filename_output, name);
-        strcat(output_path, filename_output);
-        strcat(output_path, bmpformat);
-        printf("%s\n", output_path);
-        // write_bmp_file(output_path);
+        presentFile = (char*)malloc(sizeof(char)*(strlen(p->data)+1));
+        strcpy(presentFile, p->data);
+        printf("%s\n", presentFile);
+        read_jpeg_file(presentFile);
 
+        convert_jpeg_to_bmp();
+
+        strtok(presentFile,".");
+        strcat(presentFile, bmpformat);
+
+        write_bmp_file(presentFile);
+
+        if(presentFile != NULL)
+        {
+            free(presentFile);
+            presentFile = NULL;
+        }
         p = p -> next;
-        // path = NULL;
-        strcpy(path, "./data/jpeg/");
-        strcpy(output_path, "./data/bmp/");
-        // strcpy(output_path, argv[2]);
-
     }    
 
     return 0;

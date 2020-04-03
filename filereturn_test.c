@@ -4,11 +4,13 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
-#include "linked_list.h"
+#include "linkedlist.h"
 
 #define MAX_FOLDER_NAME 5012
 
 linkedList *L;
+void getfiles(char* path);
+// char *get_filename_ext(const char *filename);
 
 
 int main()
@@ -25,35 +27,26 @@ int main()
     return 0;
 
 }
+
 void getfiles(char* path)
 {
     DIR *dir;
     struct dirent *ent;
-    struct stat st;
     dir = opendir(path);
-    int name_size;
     char *name;
     char *filename ;
     char folder_name[1024];
-
-
-    // if(stat(path,&st) ==-1)
-    // {
-    //     perror("stat failed");
-    //     exit
-    // }
-
+    char *file_loc;
 
     if(dir != NULL)
     {
         while((ent=readdir(dir))!=NULL)
         {
-            // printf("%s\n", ent->d_name);
             char *type[2] = {NULL,};
             int i =0;
-            filename = (char *)malloc(sizeof(char)*strlen(ent->d_name));
+            filename = (char *)malloc(sizeof(char)*ent->d_reclen);
             strcpy(filename, ent->d_name);
-
+            file_loc = (char*)malloc(sizeof(char)*(strlen(path)+strlen(filename)+2));
 
             if(ent->d_type==8)
             {
@@ -67,21 +60,34 @@ void getfiles(char* path)
 
                         ptr = strtok(NULL, " ");
                     }
+                    
                     if(type[1] != NULL)
                     {
-
-                        if(strcmp(type[1],"jpg")==0 || strcmp(type[1], "bmp")==0 || strcmp(type[1], "gif")==0)
+                        if(strcmp(type[1],"jpg")==0)
                         {
                             if(L != NULL)
                             {
+                                if(filename != NULL)
+                                {
+                                    strcpy(file_loc, path);
+                                    strcat(file_loc, "/");
+                                    strcat(file_loc, ent->d_name);
+                                    // printf("%ld\t %ld\t %ld\t %ld\t \n", strlen(ent->d_name), strlen(path), strlen(filename), strlen(file_loc));
 
-                                createNode_char(L, ent->d_name);
+                                    // printf("%s\n", file_loc);
+                                    createNode(L, file_loc);
+                                    free(filename);
+                                    filename = NULL;
+                                }
+                                if(file_loc != NULL)
+                                {
+                                    free(file_loc);
+                                    file_loc = NULL;
+                                }
                             }
-                            // printf("%s\n", ent->d_name);
                         }
                         else
                         {
-                            // printf("%s\n", filename);
                             continue;
                         }
                         
@@ -101,12 +107,12 @@ void getfiles(char* path)
                     strcpy(folder_name, path);
                     strcat(folder_name, "/");
                     strcat(folder_name,ent->d_name);
-                    // printf("%s\n",folder_name);
-                    getfiles(folder_name);
+                    if(ent->d_name[0] != '.')
+                    {
+                        getfiles(folder_name);
+                    }
                 }
-                
-                    // printf("%s\n", path);
-                
+                                
             }
         }
         closedir(dir);
@@ -116,3 +122,12 @@ void getfiles(char* path)
         perror("");
     }    
 }
+
+// char *get_filename_ext(const char *filename)
+// {
+// 	char *dot = strrchr(filename, '.');
+// 	if (!dot || dot == filename) {
+// 		return "";
+// 	}
+// 	return dot + 1;
+// }
