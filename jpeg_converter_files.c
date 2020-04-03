@@ -296,7 +296,24 @@ void getfiles(char* path)
         perror("");
     }    
 }
+char *changing_ext(char* filename)
+{
+    char *bmp = "bmp";
+    strtok(filename, ".");
+    strcat(filename,bmp);
 
+    return filename;
+}
+
+void *process(char *path)
+{
+    char *bmpformat = ".bmp";
+    printf("%s\n", path);
+    read_jpeg_file(path);
+    convert_jpeg_to_bmp();
+    changing_ext(path);
+    write_bmp_file(path);    
+}
 
 int main()
 {
@@ -306,37 +323,24 @@ int main()
     L = (linkedList*)malloc(sizeof(linkedList));
     L->head = NULL;
     L->tail = NULL; 
-    
+
     getfiles(start_path);
-    // printNode(L);
 
-
-    char *bmpformat = ".bmp";
 
     node *p = L->head;
     char *presentFile;
-    
     while(p != NULL)
     {
         presentFile = (char*)malloc(sizeof(char)*(strlen(p->data)+1));
         strcpy(presentFile, p->data);
-        printf("%s\n", presentFile);
-        read_jpeg_file(presentFile);
-
-        convert_jpeg_to_bmp();
-
-        strtok(presentFile,".");
-        strcat(presentFile, bmpformat);
-
-        write_bmp_file(presentFile);
-
+        process(presentFile);
         if(presentFile != NULL)
         {
             free(presentFile);
             presentFile = NULL;
         }
         p = p -> next;
-    }    
+    }
 
     return 0;
 
