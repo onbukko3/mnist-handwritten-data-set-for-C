@@ -146,7 +146,7 @@ write_bmp_file(char *filename)
         padding = ((PIXEL_ALIGN - ((_bih.biWidth * _bih.biBitCount / 8) % PIXEL_ALIGN)) % PIXEL_ALIGN);
         int pixelsize = getPixelSize(_bih.biBitCount);
         WIDTH = _bih.biWidth*pixelsize + padding;
-        long size = _bih.biSizeImage+padding;
+        long size = _bih.biSizeImage+padding*_bih.biHeight;
         int count = _bih.biBitCount;
         char temp;
 
@@ -186,18 +186,6 @@ write_bmp_file(char *filename)
 
         fwrite(buffer_bmp,1,size,tgtFile);
     }
-    // if(buffer !=NULL)
-    // {
-    //     // free(buffer[0]);
-    //     buffer[0] = NULL;
-
-    // }
-    // if(buffer_bmp !=NULL)
-    // {
-    //     free(buffer_bmp);
-    //     buffer_bmp = NULL;
-    // }
-
     fclose(tgtFile);
 
 
@@ -298,7 +286,7 @@ void getfiles(char* path)
 }
 char *changing_ext(char* filename)
 {
-    char *bmp = "bmp";
+    char *bmp = ".bmp";
     strtok(filename, ".");
     strcat(filename,bmp);
 
@@ -341,6 +329,8 @@ int main()
         }
         p = p -> next;
     }
+
+    deleteAllNode(L);
 
     return 0;
 

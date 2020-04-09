@@ -72,7 +72,7 @@ read_jpeg_file (char *filename)
 
 
     // buffer = (*cinfo.mem->alloc_sarray)((j_common_ptr)&cinfo, JPOOL_IMAGE, row_stride, 1);
-    buffer_bmp = (unsigned char*)malloc(row_stride*cinfo.output_height);
+    buffer_bmp = (unsigned char*)malloc(sizeof(unsigned char)*row_stride*cinfo.output_height);
     int i  = 0;
     int j = 0;
     while (cinfo.output_scanline < cinfo.output_height)
@@ -180,28 +180,20 @@ write_bmp_file(char *filename)
 
         fwrite(buffer_bmp,1,size,tgtFile);
     }
-
-    free(buffer_bmp);
-
     fclose(tgtFile);
+
 
     return 1;
 }
 
 int main()
 {
-    //int argc, char* argv[]
-    // if(argc<3)
-    // {
-    //     printf("usage : {app Name} {input JPEG file path} {output BMP file path}\n");
-	// 	return 0;
-    // }
-    
-    read_jpeg_file("data/jpeg/view-of-elephant-in-water-247431.jpg");
+
+    read_jpeg_file("./data/jpeg/gray-bridge-and-trees-814499.jpg");
     
     convert_jpeg_to_bmp();
 
-    write_bmp_file("data/jpeg/view-of-elephant-in-water-247431.bmp");
+    write_bmp_file("./data/bmp/gray-bridge-and-trees-814499.bmp");
 
     return 0;
 
